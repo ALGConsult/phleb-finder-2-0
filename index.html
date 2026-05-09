@@ -1,0 +1,2845 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG Panel Webform</title>
+  <style>
+    :root {
+      --svg-width: 1397;
+      --svg-height: 633;
+      --panel-x: 691;
+      --panel-y: 16;
+      --panel-width: 684;
+      --panel-height: 601;
+      --accent: #ec4f7a;
+      --line: #ef9ab0;
+      --label: #222222;
+      --muted: #7b7b7b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      background: #f2f4f7;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .canvas {
+      position: relative;
+      width: min(1200px, 100%);
+      aspect-ratio: calc(var(--svg-width) / var(--svg-height));
+      background: url("assets/background.svg") center / contain no-repeat;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .panel-form {
+      position: absolute;
+      left: calc((var(--panel-x) / var(--svg-width)) * 100%);
+      top: calc((var(--panel-y) / var(--svg-height)) * 100%);
+      width: calc((var(--panel-width) / var(--svg-width)) * 100%);
+      height: calc((var(--panel-height) / var(--svg-height)) * 100%);
+      padding: clamp(10px, 1.3vw, 18px);
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      color: var(--label);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .dev-controls {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 60;
+    }
+
+    .dev-control-btn {
+      position: absolute;
+      position: static;
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(236, 79, 122, 0.45);
+      border-radius: 999px;
+      background: rgba(236, 79, 122, 0.1);
+      color: rgba(236, 79, 122, 0.7);
+      font-size: 11px;
+      line-height: 1;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.15;
+      z-index: 50;
+      transition: opacity 120ms ease, transform 120ms ease;
+      cursor: pointer;
+    }
+
+    .dev-control-btn:hover {
+      opacity: 0.75;
+      transform: scale(1.05);
+    }
+
+    .dev-control-btn.is-active {
+      opacity: 0.95;
+      background: rgba(236, 79, 122, 0.22);
+      color: #c1275a;
+      border-color: rgba(236, 79, 122, 0.9);
+    }
+
+    .panel-form h1 {
+      margin: 0;
+      color: var(--accent);
+      font-size: clamp(22px, 2.6vw, 42px);
+      line-height: 1.1;
+      letter-spacing: 0.2px;
+      font-weight: 700;
+    }
+
+    .panel-form p {
+      margin: 0;
+      font-size: clamp(12px, 0.93vw, 20px);
+      line-height: 1.24;
+      max-width: 95%;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.9fr;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: clamp(11px, 0.82vw, 16px);
+      color: var(--label);
+      line-height: 1.1;
+    }
+
+    .blood-test-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 12px;
+      align-items: end;
+    }
+
+    @media (max-width: 980px) {
+      .blood-test-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input,
+    select,
+    button,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #f6f6f6;
+      color: #595959;
+      font-size: clamp(11px, 0.82vw, 15px);
+      line-height: 1.25;
+      padding: 8px 10px;
+      font-family: inherit;
+    }
+
+    input,
+    select {
+      height: clamp(28px, 2.2vw, 40px);
+    }
+
+    button {
+      height: clamp(28px, 2.2vw, 40px);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    textarea {
+      resize: none;
+      min-height: clamp(72px, 10vw, 140px);
+      padding-top: 8px;
+    }
+
+    select {
+      appearance: none;
+      cursor: pointer;
+      padding-right: 32px;
+    }
+
+    .custom-select {
+      position: relative;
+    }
+
+    .custom-select-trigger {
+      padding-right: 34px;
+      color: #595959;
+    }
+
+    .custom-select-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 4px);
+      margin: 0;
+      padding: 4px 0;
+      list-style: none;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 20;
+      display: none;
+    }
+
+    .custom-select.open .custom-select-menu {
+      display: block;
+    }
+
+    .custom-select-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      font-size: clamp(11px, 0.82vw, 15px);
+      color: #3f3f3f;
+      cursor: pointer;
+      background: #ffffff;
+    }
+
+    .custom-select-option:hover,
+    .custom-select-option[aria-selected="true"] {
+      background: #fff3f7;
+    }
+
+    .option-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .option-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .info-btn {
+      position: relative;
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #d3a3b2;
+      background: #ffffff;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      user-select: none;
+      padding: 0;
+    }
+
+    .info-btn:hover::after {
+      content: "More information";
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      font-size: 11px;
+      background: #2f2f2f;
+      color: #ffffff;
+      padding: 5px 7px;
+      border-radius: 4px;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .mini-toggle {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #e8b8c7;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .mini-toggle-btn {
+      width: auto;
+      min-width: 34px;
+      height: 20px;
+      border: none;
+      border-left: 1px solid #e8b8c7;
+      border-radius: 0;
+      padding: 0 8px;
+      background: transparent;
+      color: #7b7b7b;
+      font-size: 10px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .mini-toggle-btn:first-child {
+      border-left: none;
+    }
+
+    .mini-toggle-btn.is-active {
+      background: #ec4f7a;
+      color: #ffffff;
+    }
+
+    .custom-select-menu .mini-toggle {
+      display: none;
+    }
+
+    .centrifuge-field {
+      gap: 6px;
+    }
+
+    .centrifuge-label {
+      font-size: clamp(11px, 0.82vw, 16px);
+      color: var(--label);
+      line-height: 1.1;
+    }
+
+    .centrifuge-label-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .centrifuge-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 8px;
+      background: #ececef;
+      border: 1px solid #e1e1e7;
+      height: clamp(28px, 2.2vw, 40px);
+      align-items: center;
+    }
+
+    .centrifuge-btn {
+      height: 100%;
+      border: 0;
+      border-radius: 6px;
+      padding: 0 8px;
+      background: transparent;
+      color: #6d8094;
+      font-size: clamp(11px, 0.82vw, 15px);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .centrifuge-btn.is-active {
+      background: #ffffff;
+      color: #1f2a37;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-btn:hover::before {
+      content: "";
+      position: absolute;
+      right: 19px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left: 5px solid #2f2f2f;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .caret {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-48%);
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 10px solid #cfcfcf;
+      pointer-events: none;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(236, 79, 122, 0.18);
+    }
+
+    .support-row {
+      border-top: 1px solid #f1d4dd;
+      border-bottom: 1px solid #f1d4dd;
+      padding: 9px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      color: #7d7d7d;
+      font-size: clamp(10px, 0.76vw, 14px);
+    }
+
+    .support-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.2;
+    }
+
+    .support-trigger {
+      width: auto;
+      border: none;
+      background: transparent;
+      padding: 0;
+      height: auto;
+      color: inherit;
+    }
+
+    .support-trigger:hover {
+      text-decoration: underline;
+      text-decoration-color: #dca5b5;
+    }
+
+    .support-trigger:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    .icon {
+      color: var(--accent);
+      font-size: clamp(13px, 0.95vw, 18px);
+      flex: 0 0 auto;
+    }
+
+    .attach-icon {
+      width: clamp(13px, 0.95vw, 18px);
+      height: clamp(13px, 0.95vw, 18px);
+      display: block;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: clamp(11px, 0.82vw, 15px);
+    }
+
+    .appointment-location {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .appointment-location-title {
+      margin: 0;
+      font-size: clamp(11px, 0.82vw, 16px);
+      color: var(--label);
+      line-height: 1.1;
+      font-weight: 400;
+    }
+
+    .location-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 980px) {
+      .location-options {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .location-card {
+      border: none;
+      border-radius: 10px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      min-height: 48px;
+      text-align: left;
+      line-height: 1.1;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+      transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+    }
+
+    .location-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+      filter: brightness(1.02);
+    }
+
+    .location-card:active {
+      transform: translateY(0);
+    }
+
+    .location-card.is-selected {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: -4px;
+    }
+
+    .location-mobile {
+      background: linear-gradient(180deg, #ff638f 0%, #ef245f 100%);
+    }
+
+    .location-clinic {
+      background: linear-gradient(180deg, #ba97d7 0%, #8f71b9 100%);
+    }
+
+    .location-icon {
+      font-size: clamp(14px, 1vw, 18px);
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .location-copy {
+      display: grid;
+      gap: 3px;
+    }
+
+    .location-title {
+      font-size: clamp(12px, 0.95vw, 16px);
+      font-weight: 600;
+      letter-spacing: 0.1px;
+    }
+
+    .location-subtitle {
+      font-size: clamp(10px, 0.76vw, 13px);
+      opacity: 0.98;
+    }
+
+    .clinic-availability {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+      padding: 10px;
+      border: 1px solid #f0c1d0;
+      border-radius: 8px;
+      background: #fcfbfc;
+    }
+
+    .clinic-mode-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 8px;
+      background: #ececef;
+      border: 1px solid #e1e1e7;
+      height: clamp(28px, 2.2vw, 40px);
+      align-items: center;
+      width: min(360px, 100%);
+    }
+
+    .clinic-mode-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #6d8094;
+      font-size: clamp(11px, 0.82vw, 15px);
+      font-weight: 600;
+      padding: 0 8px;
+      height: 100%;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .clinic-mode-btn.is-active {
+      background: #ffffff;
+      color: #1f2a37;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .clinic-title {
+      margin: 0;
+      font-size: clamp(14px, 1vw, 18px);
+      font-weight: 700;
+      line-height: 1.1;
+      color: #3a3a3a;
+    }
+
+    .clinic-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-near-view {
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-card {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid #ef9ab0;
+      border-radius: 8px;
+      background: #ffffff;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .clinic-card.is-selected {
+      border-color: #ec4f7a;
+      box-shadow: 0 4px 12px rgba(236, 79, 122, 0.15);
+    }
+
+    .clinic-name {
+      margin: 0;
+      font-size: clamp(14px, 1vw, 18px);
+      line-height: 1.1;
+      color: #ec4f7a;
+      font-weight: 700;
+    }
+
+    .clinic-address {
+      margin: 0;
+      color: #4e4e4e;
+      font-size: clamp(11px, 0.82vw, 15px);
+      line-height: 1.2;
+      font-weight: 500;
+    }
+
+    .clinic-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .clinic-next-slot {
+      margin: 0;
+      color: #3f3f3f;
+      font-size: clamp(11px, 0.82vw, 15px);
+      line-height: 1.2;
+      font-weight: 600;
+    }
+
+    .clinic-next-slot strong {
+      color: #3f3f3f;
+      font-weight: 800;
+    }
+
+    .clinic-view-btn {
+      width: auto;
+      border: 1px solid #de4d79;
+      border-radius: 8px;
+      background: #ec4f7a;
+      color: #ffffff;
+      font-size: clamp(11px, 0.82vw, 14px);
+      font-weight: 700;
+      padding: 8px 12px;
+      height: auto;
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .clinic-view-btn:hover {
+      background: #df3f6d;
+    }
+
+    .clinic-date-view {
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-date-layout {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .clinic-date-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .clinic-calendar-panel,
+    .clinic-results-panel {
+      border: 1px solid #ef9ab0;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-calendar-title,
+    .clinic-results-title {
+      margin: 0;
+      font-size: clamp(14px, 1vw, 18px);
+      font-weight: 700;
+      color: #3a3a3a;
+      line-height: 1.1;
+    }
+
+    .clinic-calendar-subtitle,
+    .clinic-results-subtitle {
+      margin: 0;
+      font-size: clamp(11px, 0.82vw, 15px);
+      color: #4f4f4f;
+      line-height: 1.2;
+    }
+
+    .clinic-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      font-size: clamp(10px, 0.74vw, 12px);
+      color: #67707d;
+      text-transform: uppercase;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .clinic-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .clinic-day-cell {
+      border: 1px solid #e6b1c1;
+      border-radius: 8px;
+      min-height: 44px;
+      background: #fff7fa;
+      color: #9d9d9d;
+      font-size: clamp(11px, 0.82vw, 14px);
+      font-weight: 600;
+      text-align: center;
+      padding: 4px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 3px;
+      cursor: default;
+    }
+
+    .clinic-day-cell.is-active-date {
+      color: #3f3f3f;
+      border-color: #ef9ab0;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .clinic-day-cell.is-selected {
+      border-color: #de4d79;
+      background: #ec4f7a;
+      color: #ffffff;
+    }
+
+    .clinic-day-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: #ec4f7a;
+    }
+
+    .clinic-day-cell.is-selected .clinic-day-dot {
+      background: #ffffff;
+    }
+
+    .clinic-date-results-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-date-result-card {
+      border: 1px solid #ef9ab0;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .clinic-date-slot {
+      margin: 0;
+      font-size: clamp(11px, 0.82vw, 15px);
+      color: #3f3f3f;
+      line-height: 1.2;
+      font-weight: 600;
+    }
+
+    .clinic-modal-panel {
+      width: min(420px, 100%);
+      max-height: min(88vh, 760px);
+      overflow-y: auto;
+      background: #f5f7fb;
+      border: 1px solid #f0c1d0;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .clinic-modal-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .clinic-modal-title {
+      margin: 0;
+      font-size: clamp(20px, 1.5vw, 28px);
+      line-height: 1.1;
+      color: #2f3b4a;
+      font-weight: 700;
+    }
+
+    .clinic-modal-date {
+      display: none;
+    }
+
+    .clinic-modal-card {
+      border: 1px solid #dfe4ea;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .clinic-modal-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .clinic-modal-thumb {
+      width: 70px;
+      height: 56px;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #d9e8f0, #f2f5f7);
+      border: 1px solid #d7dfe6;
+      flex: 0 0 auto;
+    }
+
+    .clinic-modal-name {
+      margin: 0;
+      color: #ec4f7a;
+      font-size: clamp(15px, 1vw, 20px);
+      line-height: 1.15;
+      font-weight: 700;
+    }
+
+    .clinic-modal-address {
+      margin: 3px 0 0;
+      color: #556070;
+      font-size: clamp(12px, 0.85vw, 15px);
+      line-height: 1.2;
+      font-weight: 600;
+    }
+
+    .clinic-slot-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-slot-item {
+      border: 1px solid #dde3ee;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-slot-time {
+      margin: 0;
+      font-size: clamp(12px, 0.85vw, 15px);
+      line-height: 1.2;
+      color: #4a5565;
+      font-weight: 600;
+    }
+
+    .clinic-slot-time strong {
+      color: #1a7b9d;
+      font-weight: 800;
+    }
+
+    .clinic-slot-price {
+      color: #3f3f3f;
+      font-size: clamp(12px, 0.85vw, 15px);
+      line-height: 1.2;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .clinic-book-btn {
+      width: 100%;
+      border: 1px solid #de4d79;
+      border-radius: 8px;
+      background: #ec4f7a;
+      color: #ffffff;
+      font-size: clamp(12px, 0.85vw, 14px);
+      font-weight: 700;
+      text-align: center;
+      padding: 9px 10px;
+      height: auto;
+    }
+
+    .clinic-book-btn:hover {
+      background: #df3f6d;
+    }
+
+    .mobile-slots {
+      display: grid;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 10px;
+      border: 1px solid #d7d7d7;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
+    .mobile-slots-title {
+      margin: 0;
+      font-size: clamp(14px, 1vw, 18px);
+      font-weight: 700;
+      color: #3a3a3a;
+      line-height: 1.2;
+    }
+
+    .mobile-slots-subtitle {
+      margin: 2px 0 0;
+      font-size: clamp(11px, 0.82vw, 15px);
+      color: #5a5a5a;
+      line-height: 1.25;
+      font-style: italic;
+    }
+
+    .slots-nav {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .slots-arrow {
+      width: 24px;
+      min-width: 24px;
+      height: 32px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: #ec4f7a;
+      font-size: 34px;
+      line-height: 1;
+      text-align: center;
+      padding: 0;
+    }
+
+    .slots-arrow:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .day-column {
+      display: grid;
+      gap: 4px;
+      align-content: start;
+    }
+
+    .day-card {
+      border: 1px solid #a73b5f;
+      border-radius: 10px;
+      background: #ec4f7a;
+      color: #ffffff;
+      padding: 6px 4px 5px;
+      text-align: center;
+      line-height: 1.1;
+      min-height: 69px;
+      display: grid;
+      align-content: center;
+      gap: 2px;
+    }
+
+    .day-name {
+      font-size: clamp(11px, 0.78vw, 13px);
+      font-weight: 600;
+    }
+
+    .day-number {
+      font-size: clamp(22px, 1.7vw, 34px);
+      font-weight: 800;
+    }
+
+    .day-month {
+      font-size: clamp(11px, 0.8vw, 13px);
+      font-weight: 600;
+    }
+
+    .slot-btn {
+      width: 100%;
+      height: auto;
+      min-height: 28px;
+      padding: 4px 6px;
+      border: 2px solid #81b874;
+      border-radius: 6px;
+      background: #f5f8f5;
+      color: #222222;
+      font-size: clamp(11px, 0.8vw, 13px);
+      text-align: center;
+      line-height: 1.15;
+      font-weight: 500;
+    }
+
+    .slot-btn.is-selected {
+      background: #dff2d8;
+      border-color: #4f9d57;
+      color: #204e28;
+    }
+
+    .confidence-box {
+      display: grid;
+      gap: 4px;
+      background: #b7dbac;
+      border: 1px solid #86ba76;
+      border-radius: 10px;
+      padding: 9px 10px;
+      color: #234b24;
+      min-height: 98px;
+    }
+
+    .confidence-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .confidence-title {
+      font-size: clamp(14px, 1vw, 18px);
+      font-weight: 700;
+    }
+
+    .confidence-value {
+      font-size: clamp(20px, 1.45vw, 28px);
+      font-weight: 800;
+    }
+
+    .confidence-text {
+      margin: 0;
+      font-size: clamp(12px, 0.82vw, 14px);
+      line-height: 1.25;
+      color: #1f4121;
+    }
+
+    .price-box {
+      display: grid;
+      gap: 6px;
+      background: #8ed1ec;
+      border: 1px solid #36afe3;
+      border-radius: 12px;
+      padding: 8px 10px;
+      color: #073d56;
+    }
+
+    .price-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      line-height: 1.1;
+    }
+
+    .price-title {
+      font-size: clamp(15px, 1.05vw, 20px);
+      font-weight: 700;
+    }
+
+    .price-range {
+      font-size: clamp(20px, 1.45vw, 28px);
+      font-weight: 800;
+      color: #0b668f;
+      letter-spacing: 0.3px;
+    }
+
+    .price-text {
+      margin: 0;
+      font-size: clamp(12px, 0.82vw, 16px);
+      line-height: 1.25;
+      color: #082f42;
+    }
+
+    .form-next-wrap {
+      margin-top: 2px;
+    }
+
+    .form-next-btn {
+      width: 100%;
+      border: 1px solid #de4d79;
+      border-radius: 8px;
+      background: #ec4f7a;
+      color: #ffffff;
+      font-size: clamp(13px, 0.95vw, 16px);
+      font-weight: 700;
+      text-align: center;
+      padding: 10px 12px;
+      height: auto;
+    }
+
+    .form-next-btn:hover {
+      background: #df3f6d;
+    }
+
+    .about-you-page {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      padding-top: 2px;
+    }
+
+    .about-you-title {
+      margin: 0;
+      color: var(--accent);
+      font-size: clamp(20px, 2.1vw, 34px);
+      line-height: 1.1;
+      font-weight: 700;
+    }
+
+    .about-you-subtitle {
+      margin: 0;
+      font-size: clamp(12px, 0.9vw, 16px);
+      color: #3c3c3c;
+      line-height: 1.25;
+    }
+
+    .about-selection-summary {
+      display: grid;
+      gap: 4px;
+      border: 1px solid #ef9ab0;
+      border-radius: 8px;
+      background: #fff7fa;
+      padding: 8px 10px;
+    }
+
+    .about-selection-title {
+      margin: 0;
+      font-size: clamp(12px, 0.85vw, 16px);
+      color: #3f3f3f;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .about-selection-lines {
+      margin: 0;
+      font-size: clamp(11px, 0.82vw, 15px);
+      color: #3f3f3f;
+      line-height: 1.25;
+      white-space: pre-line;
+    }
+
+    .about-grid {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .about-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .about-back-btn {
+      width: 100%;
+      border: 1px solid #c7c7c7;
+      border-radius: 8px;
+      background: #efefef;
+      color: #3a3a3a;
+      font-size: clamp(12px, 0.85vw, 15px);
+      font-weight: 600;
+      text-align: center;
+      padding: 9px 12px;
+      height: auto;
+    }
+
+    .about-continue-btn {
+      width: 100%;
+      border: 1px solid #de4d79;
+      border-radius: 8px;
+      background: #ec4f7a;
+      color: #ffffff;
+      font-size: clamp(12px, 0.85vw, 15px);
+      font-weight: 700;
+      text-align: center;
+      padding: 9px 12px;
+      height: auto;
+    }
+
+    .summary-page {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      padding-top: 2px;
+    }
+
+    .summary-title {
+      margin: 0;
+      font-size: clamp(19px, 1.7vw, 30px);
+      font-weight: 700;
+      color: #3f3f3f;
+      line-height: 1.15;
+    }
+
+    .summary-subtitle {
+      margin: -2px 0 0;
+      font-size: clamp(12px, 0.88vw, 16px);
+      color: #4f4f4f;
+      font-style: italic;
+    }
+
+    .summary-intro {
+      margin: 0;
+      font-size: clamp(13px, 0.92vw, 16px);
+      color: #3f3f3f;
+      line-height: 1.28;
+    }
+
+    .summary-block {
+      display: grid;
+      gap: 4px;
+    }
+
+    .summary-block-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: clamp(15px, 1.02vw, 19px);
+      font-weight: 700;
+      color: #3f3f3f;
+    }
+
+    .summary-edit {
+      border: none;
+      background: transparent;
+      color: #ec4f7a;
+      font-size: clamp(12px, 0.82vw, 14px);
+      font-weight: 700;
+      text-decoration: underline;
+      text-align: right;
+      padding: 0;
+      width: auto;
+      height: auto;
+      cursor: pointer;
+    }
+
+    .summary-lines {
+      margin: 0;
+      color: #3f3f3f;
+      font-size: clamp(13px, 0.9vw, 16px);
+      line-height: 1.25;
+      white-space: pre-line;
+    }
+
+    .summary-cost-grid {
+      display: grid;
+      gap: 4px;
+    }
+
+    .summary-cost-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      font-size: clamp(13px, 0.9vw, 16px);
+      color: #3f3f3f;
+    }
+
+    .summary-total {
+      font-size: clamp(32px, 2.3vw, 42px);
+      font-weight: 800;
+      color: #3f3f3f;
+    }
+
+    .summary-submit {
+      width: 100%;
+      border: 1px solid #de4d79;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ff5f8f 0%, #ec4f7a 100%);
+      color: #ffffff;
+      text-align: center;
+      padding: 10px 12px 8px;
+      height: auto;
+      display: grid;
+      gap: 2px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    .summary-submit-title {
+      font-size: clamp(17px, 1.25vw, 23px);
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .summary-submit-subtitle {
+      font-size: clamp(12px, 0.85vw, 15px);
+      font-style: italic;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 980px) {
+      .about-grid,
+      .about-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 20, 20, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-overlay.is-open {
+      display: flex;
+    }
+
+    .modal-panel {
+      width: min(390px, 100%);
+      background: #ffffff;
+      border: 1px solid #f2b2c4;
+      border-radius: 10px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: var(--accent);
+      font-size: 19px;
+      line-height: 1.2;
+    }
+
+    .modal-intro {
+      margin: -2px 0 0;
+      color: #555555;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .close-modal-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #f0b1c2;
+      border-radius: 6px;
+      background: #fff7fa;
+      color: #8f3a55;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 8px;
+    }
+
+    .contact-form label {
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      color: #393939;
+    }
+
+    .contact-form textarea {
+      min-height: 86px;
+    }
+
+    .contact-submit {
+      border: 1px solid #de4d79;
+      background: #ec4f7a;
+      color: #ffffff;
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <form class="panel-form">
+      <h1 id="form-title">Phleb Finder 2.0</h1>
+      <p id="form-intro">Please complete this form and we will connect you with your nearest mobile phlebotomist or phlebotomy clinic.</p>
+
+      <div class="grid-2" id="details-row">
+        <div class="field">
+          <label for="postcode">Postcode</label>
+          <input id="postcode" name="postcode" type="text">
+        </div>
+
+        <div class="field">
+          <label for="reason">Reason for Appointment</label>
+          <div class="input-wrap">
+            <select id="reason" name="reason">
+              <option value="" selected disabled hidden>Click to choose</option>
+              <option>NHS Blood Test (from £60)</option>
+              <option>Private Blood Testing Kit (from £60)</option>
+              <option>I don&apos;t have a kit yet</option>
+            </select>
+            <span class="caret"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="blood-test-row" id="blood-test-field" hidden>
+        <div class="field">
+          <label for="blood-test-trigger">Choose the required blood test</label>
+          <div class="input-wrap">
+            <div class="custom-select" id="blood-test-select">
+              <input type="hidden" id="blood-test" name="blood-test" value="">
+              <button type="button" class="custom-select-trigger" id="blood-test-trigger" aria-haspopup="listbox" aria-expanded="false">
+                Click to choose
+              </button>
+              <span class="caret"></span>
+              <ul class="custom-select-menu" role="listbox" aria-label="Blood test options">
+              <li class="custom-select-option" role="option" data-value="Active B12 (+£39)" aria-selected="false">
+                <span class="option-text">Active B12 (+£39)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Active B12, Folate &amp; Ferritin (+£74)" aria-selected="false">
+                <span class="option-text">Active B12, Folate &amp; Ferritin (+£74)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Advanced Well Man Blood Test (+£159)" aria-selected="false">
+                <span class="option-text">Advanced Well Man Blood Test (+£159)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Allergy Profile (UK) (+£359.50)" aria-selected="false">
+                <span class="option-text">Allergy Profile (UK) (+£359.50)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Antenatal Health Profile (+89)" aria-selected="false">
+                <span class="option-text">Antenatal Health Profile (+89)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Antenatal Viral Screen (+£168)" aria-selected="false">
+                <span class="option-text">Antenatal Viral Screen (+£168)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Anti-Mullerian Hormone (+£79)" aria-selected="false">
+                <span class="option-text">Anti-Mullerian Hormone (+£79)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Beta hCG Plus Progesterone (+£62)" aria-selected="false">
+                <span class="option-text">Beta hCG Plus Progesterone (+£62)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Beta hCG Quantitative (£60)" aria-selected="false">
+                <span class="option-text">Beta hCG Quantitative (£60)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              <li class="custom-select-option" role="option" data-value="Copper (£89)" aria-selected="false">
+                <span class="option-text">Copper (£89)</span>
+                <div class="option-actions">
+                  <span class="info-btn" aria-label="More information">i</span>
+                  <div class="mini-toggle" role="group" aria-label="Require centrifuge">
+                    <button type="button" class="mini-toggle-btn" data-choice="yes">Yes</button>
+                    <button type="button" class="mini-toggle-btn is-active" data-choice="no">No</button>
+                  </div>
+                </div>
+              </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="field centrifuge-field">
+          <span class="centrifuge-label-row">
+            <span class="centrifuge-label">Require Centrifuge?</span>
+            <span class="info-btn" aria-label="More information">i</span>
+          </span>
+          <input type="hidden" id="require-centrifuge" name="require-centrifuge" value="no">
+          <div class="centrifuge-toggle" role="group" aria-label="Require centrifuge">
+            <button type="button" class="centrifuge-btn" data-choice="yes">Yes</button>
+            <button type="button" class="centrifuge-btn is-active" data-choice="no">No</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" id="details-field" hidden>
+        <label for="details">Please tell us more about the test</label>
+        <textarea id="details" name="details" placeholder="Please tell us which tests, or which coloured blood bottles are required, or attach a copy of your test request form. If you are not sure, contact us."></textarea>
+      </div>
+
+      <div class="support-row" id="support-row" hidden>
+        <button type="button" class="support-item support-trigger" id="open-contact-modal">
+          <span class="icon">📞</span>
+          <span>Contact Us<br>for support</span>
+        </button>
+        <div class="support-item">
+          <span>Click here to attach a copy<br>of your test request form</span>
+          <svg class="icon attach-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8 12.5L12.7 7.8C14.1 6.4 16.3 6.4 17.7 7.8C19.1 9.2 19.1 11.4 17.7 12.8L11.1 19.4C9.2 21.3 6.2 21.3 4.3 19.4C2.4 17.5 2.4 14.5 4.3 12.6L11 5.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="field" id="lab-field" hidden>
+        <label for="lab">Where is your test kit from?</label>
+        <input id="lab" name="lab" type="text" list="lab-options" placeholder="Start typing the Lab Name here">
+        <datalist id="lab-options">
+          <option value="Functional DX"></option>
+          <option value="Vibrant Wellness"></option>
+          <option value="Future Genomics Innovation Hub (FGIH)"></option>
+          <option value="The Parasite Clinic"></option>
+          <option value="Academy of Nutritional Health (AONM) / Armin Labs"></option>
+          <option value="HEAL Labs"></option>
+          <option value="Other Private Blood Test"></option>
+        </datalist>
+      </div>
+
+      <div class="appointment-location" id="appointment-location-field" hidden>
+        <p class="appointment-location-title">Choose where you would like your appointment to take place</p>
+        <input type="hidden" id="appointment-location" name="appointment-location" value="">
+        <div class="location-options">
+          <button type="button" class="location-card location-mobile" data-location="mobile">
+            <span class="location-icon" aria-hidden="true">🚑</span>
+            <span class="location-copy">
+              <span class="location-title">Mobile Appointment</span>
+              <span class="location-subtitle">We will come to you</span>
+            </span>
+          </button>
+          <button type="button" class="location-card location-clinic" data-location="clinic">
+            <span class="location-icon" aria-hidden="true">🏥</span>
+            <span class="location-copy">
+              <span class="location-title">Clinic Appointment</span>
+              <span class="location-subtitle">You will come to us</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="clinic-availability" id="clinic-availability-field" hidden>
+        <input type="hidden" id="selected-clinic" name="selected-clinic" value="">
+
+        <div class="clinic-mode-toggle" role="group" aria-label="Clinic search mode">
+          <button type="button" class="clinic-mode-btn is-active" data-clinic-mode="near">Find a Clinic Near Me</button>
+          <button type="button" class="clinic-mode-btn" data-clinic-mode="date">Book by Date</button>
+        </div>
+
+        <div class="clinic-near-view" id="clinic-near-view">
+          <h3 class="clinic-title">📍 Your nearest clinics:</h3>
+
+          <div class="clinic-list">
+            <article class="clinic-card" data-clinic-id="1" data-clinic-name="Northwell Health Clinic Westminster" data-clinic-address="221B Baker Street, Westminster, London, NW1 6XE" data-clinic-next-slot="Today, 2:30 PM">
+              <h4 class="clinic-name">Northwell Health Clinic Westminster</h4>
+              <p class="clinic-address">221B Baker Street, Westminster, London, NW1 6XE</p>
+              <div class="clinic-footer">
+                <p class="clinic-next-slot">Next Available: <strong class="clinic-next-slot-value">Today, 2:30 PM</strong></p>
+                <button type="button" class="clinic-view-btn">View availability</button>
+              </div>
+            </article>
+
+            <article class="clinic-card" data-clinic-id="2" data-clinic-name="CityMed Urgent Care Camden" data-clinic-address="17 Camden High Street, Camden, London, NW1 7JE" data-clinic-next-slot="In 15 mins">
+              <h4 class="clinic-name">CityMed Urgent Care Camden</h4>
+              <p class="clinic-address">17 Camden High Street, Camden, London, NW1 7JE</p>
+              <div class="clinic-footer">
+                <p class="clinic-next-slot">Next Available: <strong class="clinic-next-slot-value">In 15 mins</strong></p>
+                <button type="button" class="clinic-view-btn">View availability</button>
+              </div>
+            </article>
+
+            <article class="clinic-card" data-clinic-id="3" data-clinic-name="Mount Sinai Doctors Kensington" data-clinic-address="45 Kensington High Street, Kensington, London, W8 5ED" data-clinic-next-slot="Tomorrow, 9:00 AM">
+              <h4 class="clinic-name">Mount Sinai Doctors Kensington</h4>
+              <p class="clinic-address">45 Kensington High Street, Kensington, London, W8 5ED</p>
+              <div class="clinic-footer">
+                <p class="clinic-next-slot">Next Available: <strong class="clinic-next-slot-value">Tomorrow, 9:00 AM</strong></p>
+                <button type="button" class="clinic-view-btn">View availability</button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="clinic-date-view" id="clinic-date-view" hidden>
+          <div class="clinic-date-layout">
+            <section class="clinic-calendar-panel">
+              <h3 class="clinic-calendar-title">Find an appointment</h3>
+              <p class="clinic-calendar-subtitle">Choose a date to see available clinic slots near you.</p>
+              <div class="clinic-weekdays">
+                <span>Sun</span>
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+              </div>
+              <div class="clinic-calendar-grid" id="clinic-calendar-grid"></div>
+            </section>
+
+            <section class="clinic-results-panel">
+              <h3 class="clinic-results-title">Available clinics</h3>
+              <p class="clinic-results-subtitle" id="clinic-results-subtitle">Select a highlighted date.</p>
+              <div class="clinic-date-results-list" id="clinic-date-results-list"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="mobile-slots" id="mobile-slots-field" hidden>
+        <div>
+          <p class="mobile-slots-title">⏰ Please select up to 5 time slots</p>
+          <p class="mobile-slots-subtitle">The more you choose, the more likely one of our phlebotomists will be able to fulfil the appointment.</p>
+        </div>
+        <div class="slots-nav">
+          <button type="button" class="slots-arrow" id="slots-prev" aria-label="Show previous dates">&lsaquo;</button>
+          <div class="slots-grid" id="slots-grid"></div>
+          <button type="button" class="slots-arrow" id="slots-next" aria-label="Show next dates">&rsaquo;</button>
+        </div>
+        <div class="confidence-box">
+          <div class="confidence-head">
+            <span class="confidence-title">Match confidence:</span>
+            <span class="confidence-value" id="confidence-value">60%</span>
+          </div>
+          <p class="confidence-text" id="confidence-text">Based on availability, there is a 60% chance at least one phlebotomist can accept your appointment.</p>
+        </div>
+      </div>
+
+      <div class="price-box" id="price-box" hidden>
+        <div class="price-head">
+          <span class="price-title">Price:</span>
+          <span class="price-range" id="price-range">£60-£80</span>
+        </div>
+        <p class="price-text" id="price-text-line-1">The final price will be confirmed when one of your closest phlebotomists accepts the appointment. The price can change based on the distance the phlebotomist has to travel.</p>
+        <p class="price-text" id="price-text-line-2">You will not be asked for payment until the appointment has been confirmed by a phlebotomist, and the date, time and price have been finalised.</p>
+      </div>
+
+      <div class="form-next-wrap" id="form-next-wrap">
+        <button type="button" class="form-next-btn" id="go-to-about-you">Next section: About you</button>
+      </div>
+
+      <div class="about-you-page" id="about-you-page" hidden>
+        <h2 class="about-you-title">About you</h2>
+        <p class="about-you-subtitle">Please share your personal details so we can finalise your appointment booking.</p>
+        <div class="about-selection-summary" id="about-selection-summary" hidden>
+          <p class="about-selection-title" id="about-selection-title"></p>
+          <p class="about-selection-lines" id="about-selection-lines"></p>
+        </div>
+
+        <div class="about-grid">
+          <div class="field">
+            <label for="about-first-name">First name</label>
+            <input id="about-first-name" name="about-first-name" type="text">
+          </div>
+          <div class="field">
+            <label for="about-last-name">Last name</label>
+            <input id="about-last-name" name="about-last-name" type="text">
+          </div>
+          <div class="field">
+            <label for="about-email">Email address</label>
+            <input id="about-email" name="about-email" type="email">
+          </div>
+          <div class="field">
+            <label for="about-phone">Phone number</label>
+            <input id="about-phone" name="about-phone" type="tel">
+          </div>
+          <div class="field">
+            <label for="about-dob">Date of birth</label>
+            <input id="about-dob" name="about-dob" type="date">
+          </div>
+          <div class="field">
+            <label for="about-address">Address</label>
+            <input id="about-address" name="about-address" type="text" list="about-address-options" autocomplete="off" placeholder="Start typing your address">
+            <datalist id="about-address-options"></datalist>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="about-notes">Anything else we should know?</label>
+          <textarea id="about-notes" name="about-notes" placeholder="Please tell us anything else we might need to know about your requirements including: details about specific collection(s), availability or accessibility restrictions, or previous problems you may have had having your blood taken."></textarea>
+        </div>
+
+        <div class="about-actions">
+          <button type="button" class="about-back-btn" id="back-to-form">Back to previous section</button>
+          <button type="button" class="about-continue-btn" id="about-continue-btn">Continue</button>
+        </div>
+      </div>
+
+      <div class="summary-page" id="summary-page" hidden>
+        <h2 class="summary-title">✅ Summary</h2>
+        <p class="summary-subtitle">Please confirm the details of your request are correct</p>
+        <p class="summary-intro" id="summary-intro"></p>
+
+        <div class="summary-block">
+          <div class="summary-block-head">
+            <span>🧪 Test Details</span>
+            <button type="button" class="summary-edit" id="summary-edit-test">Edit</button>
+          </div>
+          <p class="summary-lines" id="summary-test-lines"></p>
+        </div>
+
+        <div class="summary-block">
+          <div class="summary-block-head">
+            <span>🗓️ Requested Dates / Times:</span>
+            <button type="button" class="summary-edit" id="summary-edit-dates">Edit</button>
+          </div>
+          <p class="summary-lines" id="summary-dates-lines"></p>
+        </div>
+
+        <div class="summary-block">
+          <div class="summary-block-head">
+            <span>📍 Address:</span>
+            <button type="button" class="summary-edit" id="summary-edit-address">Edit</button>
+          </div>
+          <p class="summary-lines" id="summary-address-lines"></p>
+        </div>
+
+        <div class="summary-block">
+          <div class="summary-block-head">
+            <span>💰 Cost</span>
+          </div>
+          <div class="summary-cost-grid">
+            <div class="summary-cost-row">
+              <span id="summary-appointment-cost-label">Mobile phlebotomy appointment:</span>
+              <span id="summary-appointment-cost-value">£60-£80 (final price to be confirmed)</span>
+            </div>
+            <div class="summary-cost-row">
+              <span>Centrifuge:</span>
+              <span id="summary-centrifuge-cost">£0</span>
+            </div>
+            <div class="summary-cost-row">
+              <span>Total:</span>
+              <span class="summary-total" id="summary-total-cost">£60-£80</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="summary-submit" id="summary-submit-btn">
+          <span class="summary-submit-title">✓ Send request to nearby phlebotomists</span>
+          <span class="summary-submit-subtitle">You will receive an email confirming the date, time &amp; cost within a few hours</span>
+        </button>
+
+        <div class="about-actions">
+          <button type="button" class="about-back-btn" id="summary-back-to-about">Back to About You</button>
+        </div>
+      </div>
+
+    </form>
+
+    <div class="dev-controls">
+      <button type="button" class="dev-control-btn" id="test-mode-toggle" title="Toggle test mode (show all fields)" aria-label="Toggle test mode">T</button>
+      <button type="button" class="dev-control-btn" id="reset-form-toggle" title="Reset form" aria-label="Reset form">R</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="contact-modal-title">Contact Us</h2>
+        <button type="button" class="close-modal-btn" id="close-contact-modal" aria-label="Close contact form">&times;</button>
+      </div>
+      <p class="modal-intro">you can give us a call anytime on 0 333 33 999 32, drop us a line on hello@Bloodsandbeyond.co.uk or fill in the form below and we&apos;ll get back to you asap</p>
+
+      <form class="contact-form" id="contact-support-form">
+        <label for="support-name">
+          Name
+          <input id="support-name" name="support-name" type="text" required>
+        </label>
+        <label for="support-email">
+          Email
+          <input id="support-email" name="support-email" type="email" required>
+        </label>
+        <label for="support-message">
+          Message
+          <textarea id="support-message" name="support-message" placeholder="How can we help?" required></textarea>
+        </label>
+        <button type="submit" class="contact-submit">Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="clinic-modal" role="dialog" aria-modal="true" aria-labelledby="clinic-modal-title">
+    <div class="clinic-modal-panel">
+      <div class="modal-header">
+        <div class="clinic-modal-header">
+          <h2 class="clinic-modal-title" id="clinic-modal-title">Available Clinics</h2>
+          <span class="clinic-modal-date" id="clinic-modal-date"></span>
+        </div>
+        <button type="button" class="close-modal-btn" id="close-clinic-modal" aria-label="Close clinic availability">&times;</button>
+      </div>
+
+      <div class="clinic-modal-card">
+        <div class="clinic-modal-meta">
+          <div class="clinic-modal-thumb" aria-hidden="true"></div>
+          <div>
+            <h3 class="clinic-modal-name" id="clinic-modal-name"></h3>
+            <p class="clinic-modal-address" id="clinic-modal-address"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="clinic-slot-list" id="clinic-slot-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const customSelect = document.getElementById("blood-test-select");
+    const trigger = document.getElementById("blood-test-trigger");
+    const hiddenInput = document.getElementById("blood-test");
+    const options = customSelect.querySelectorAll(".custom-select-option");
+    const centrifugeInput = document.getElementById("require-centrifuge");
+    const centrifugeButtons = document.querySelectorAll(".centrifuge-btn");
+    const reasonSelect = document.getElementById("reason");
+    const formTitle = document.getElementById("form-title");
+    const formIntro = document.getElementById("form-intro");
+    const detailsRow = document.getElementById("details-row");
+    const bloodTestField = document.getElementById("blood-test-field");
+    const detailsField = document.getElementById("details-field");
+    const supportRow = document.getElementById("support-row");
+    const labField = document.getElementById("lab-field");
+    const labInput = document.getElementById("lab");
+    const appointmentLocationField = document.getElementById("appointment-location-field");
+    const appointmentLocationInput = document.getElementById("appointment-location");
+    const locationButtons = document.querySelectorAll(".location-card");
+    const clinicAvailabilityField = document.getElementById("clinic-availability-field");
+    const selectedClinicInput = document.getElementById("selected-clinic");
+    const clinicModeButtons = document.querySelectorAll(".clinic-mode-btn");
+    const clinicNearView = document.getElementById("clinic-near-view");
+    const clinicDateView = document.getElementById("clinic-date-view");
+    const clinicCalendarGrid = document.getElementById("clinic-calendar-grid");
+    const clinicDateResultsList = document.getElementById("clinic-date-results-list");
+    const clinicResultsSubtitle = document.getElementById("clinic-results-subtitle");
+    const clinicCards = document.querySelectorAll(".clinic-card");
+    const clinicModal = document.getElementById("clinic-modal");
+    const closeClinicModal = document.getElementById("close-clinic-modal");
+    const clinicModalDate = document.getElementById("clinic-modal-date");
+    const clinicModalName = document.getElementById("clinic-modal-name");
+    const clinicModalAddress = document.getElementById("clinic-modal-address");
+    const clinicSlotList = document.getElementById("clinic-slot-list");
+    const mobileSlotsField = document.getElementById("mobile-slots-field");
+    const slotsGrid = document.getElementById("slots-grid");
+    const slotsPrev = document.getElementById("slots-prev");
+    const slotsNext = document.getElementById("slots-next");
+    const confidenceValue = document.getElementById("confidence-value");
+    const confidenceText = document.getElementById("confidence-text");
+    const priceBox = document.getElementById("price-box");
+    const priceRange = document.getElementById("price-range");
+    const priceTextLine1 = document.getElementById("price-text-line-1");
+    const priceTextLine2 = document.getElementById("price-text-line-2");
+    const formNextWrap = document.getElementById("form-next-wrap");
+    const goToAboutYou = document.getElementById("go-to-about-you");
+    const aboutYouPage = document.getElementById("about-you-page");
+    const aboutSelectionSummary = document.getElementById("about-selection-summary");
+    const aboutSelectionTitle = document.getElementById("about-selection-title");
+    const aboutSelectionLines = document.getElementById("about-selection-lines");
+    const backToForm = document.getElementById("back-to-form");
+    const aboutContinueBtn = document.getElementById("about-continue-btn");
+    const summaryPage = document.getElementById("summary-page");
+    const summaryIntro = document.getElementById("summary-intro");
+    const summaryTestLines = document.getElementById("summary-test-lines");
+    const summaryDatesLines = document.getElementById("summary-dates-lines");
+    const summaryAddressLines = document.getElementById("summary-address-lines");
+    const summaryAppointmentCostLabel = document.getElementById("summary-appointment-cost-label");
+    const summaryAppointmentCostValue = document.getElementById("summary-appointment-cost-value");
+    const summaryCentrifugeCost = document.getElementById("summary-centrifuge-cost");
+    const summaryTotalCost = document.getElementById("summary-total-cost");
+    const summaryEditTest = document.getElementById("summary-edit-test");
+    const summaryEditDates = document.getElementById("summary-edit-dates");
+    const summaryEditAddress = document.getElementById("summary-edit-address");
+    const summaryBackToAbout = document.getElementById("summary-back-to-about");
+    const summarySubmitBtn = document.getElementById("summary-submit-btn");
+    const testModeToggle = document.getElementById("test-mode-toggle");
+    const resetFormToggle = document.getElementById("reset-form-toggle");
+    const panelForm = document.querySelector(".panel-form");
+    const aboutAddressInput = document.getElementById("about-address");
+    const aboutAddressOptions = document.getElementById("about-address-options");
+    const openContactModal = document.getElementById("open-contact-modal");
+    const contactModal = document.getElementById("contact-modal");
+    const closeContactModal = document.getElementById("close-contact-modal");
+    const contactSupportForm = document.getElementById("contact-support-form");
+    const supportNameInput = document.getElementById("support-name");
+    const ADDRESS_QUERY_MIN_LENGTH = 4;
+    const ADDRESS_DEBOUNCE_MS = 350;
+    const ADDRESS_LOOKUP_MIN_INTERVAL_MS = 1000;
+    const ADDRESS_CACHE_LIMIT = 60;
+    const maxSelectableSlots = 5;
+    const slotOptions = ["Anytime", "08:00 - 10:00", "10:00 - 12:00", "12:00 - 14:00", "14:00 - 16:00", "16:00 - 18:00", "18:00 - 20:00"];
+    const selectedSlots = new Set();
+    const firstAvailableDate = new Date();
+    firstAvailableDate.setHours(firstAvailableDate.getHours() + 24);
+    const scheduleStartDate = new Date(firstAvailableDate.getFullYear(), firstAvailableDate.getMonth(), firstAvailableDate.getDate());
+    let scheduleOffsetDays = 0;
+    let isTestMode = false;
+    let isAboutYouPageVisible = false;
+    let isSummaryPageVisible = false;
+    let addressDebounceTimer = null;
+    let addressLookupAbortController = null;
+    let lastAddressRequestStartedAt = 0;
+    const addressSuggestionCache = new Map();
+    let selectedClinicMode = "near";
+    let selectedClinicDateLabel = "";
+    const makeClinicDateLabel = (offsetDays) => {
+      const date = new Date();
+      date.setDate(date.getDate() + offsetDays);
+      return new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+      }).format(date).replace(",", "");
+    };
+    const clinicSchedules = {
+      "1": [
+        { date: makeClinicDateLabel(1), time: "09:30 AM", price: "£35" },
+        { date: makeClinicDateLabel(3), time: "11:15 AM", price: "£45" },
+        { date: makeClinicDateLabel(7), time: "02:45 PM", price: "£35" },
+      ],
+      "2": [
+        { date: makeClinicDateLabel(2), time: "08:45 AM", price: "£45" },
+        { date: makeClinicDateLabel(6), time: "01:00 PM", price: "£35" },
+        { date: makeClinicDateLabel(10), time: "10:30 AM", price: "£45" },
+      ],
+      "3": [
+        { date: makeClinicDateLabel(4), time: "09:00 AM", price: "£35" },
+        { date: makeClinicDateLabel(8), time: "12:30 PM", price: "£45" },
+        { date: makeClinicDateLabel(13), time: "11:00 AM", price: "£35" },
+      ],
+    };
+
+    const closeMenu = () => {
+      customSelect.classList.remove("open");
+      trigger.setAttribute("aria-expanded", "false");
+    };
+
+    const closeClinicAvailabilityModal = () => {
+      clinicModal.classList.remove("is-open");
+      clinicSlotList.innerHTML = "";
+    };
+
+    const formatClinicDateLabelFromDate = (date) => {
+      return new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+      }).format(date).replace(",", "");
+    };
+
+    const getAvailableClinicDateLabels = () => {
+      const labels = new Set();
+      Object.values(clinicSchedules).forEach((slots) => {
+        slots.forEach((slot) => labels.add(slot.date));
+      });
+      return labels;
+    };
+
+    const syncClinicModeView = () => {
+      const isDateMode = selectedClinicMode === "date";
+      clinicNearView.hidden = isDateMode;
+      clinicDateView.hidden = !isDateMode;
+    };
+
+    const applyClinicSelection = (card, selectedSlotLabel) => {
+      const clinicName = card.dataset.clinicName || "";
+      clinicCards.forEach((item) => item.classList.remove("is-selected"));
+      card.classList.add("is-selected");
+      selectedClinicInput.value = clinicName;
+      card.dataset.clinicNextSlot = selectedSlotLabel;
+      const slotValueElement = card.querySelector(".clinic-next-slot-value");
+      if (slotValueElement) {
+        slotValueElement.textContent = selectedSlotLabel;
+      }
+      syncPriceBoxVisibility();
+    };
+
+    const renderClinicsForSelectedDate = () => {
+      clinicDateResultsList.innerHTML = "";
+      if (!selectedClinicDateLabel) {
+        clinicResultsSubtitle.textContent = "Select a highlighted date.";
+        return;
+      }
+
+      clinicResultsSubtitle.textContent = `Showing clinics for ${selectedClinicDateLabel}.`;
+
+      clinicCards.forEach((card) => {
+        const clinicId = card.dataset.clinicId || "";
+        const slots = (clinicSchedules[clinicId] || []).filter((slot) => slot.date === selectedClinicDateLabel);
+        if (slots.length === 0) {
+          return;
+        }
+
+        const clinicName = card.dataset.clinicName || "";
+        const clinicAddress = card.dataset.clinicAddress || "";
+        const firstSlot = slots[0];
+        const cardEl = document.createElement("article");
+        cardEl.className = "clinic-date-result-card";
+
+        const nameEl = document.createElement("h4");
+        nameEl.className = "clinic-name";
+        nameEl.textContent = clinicName;
+
+        const addressEl = document.createElement("p");
+        addressEl.className = "clinic-address";
+        addressEl.textContent = clinicAddress;
+
+        const slotEl = document.createElement("p");
+        slotEl.className = "clinic-date-slot";
+        slotEl.textContent = `Next slot: ${firstSlot.date}, ${firstSlot.time} (${firstSlot.price || "£35"})`;
+
+        const bookBtn = document.createElement("button");
+        bookBtn.type = "button";
+        bookBtn.className = "clinic-view-btn";
+        bookBtn.textContent = "Book appointment";
+        bookBtn.addEventListener("click", () => {
+          applyClinicSelection(card, `${firstSlot.date}, ${firstSlot.time}`);
+          setAboutYouPageVisibility(true);
+        });
+
+        cardEl.appendChild(nameEl);
+        cardEl.appendChild(addressEl);
+        cardEl.appendChild(slotEl);
+        cardEl.appendChild(bookBtn);
+        clinicDateResultsList.appendChild(cardEl);
+      });
+    };
+
+    const renderClinicCalendar = () => {
+      clinicCalendarGrid.innerHTML = "";
+      const availableLabels = getAvailableClinicDateLabels();
+      const today = new Date();
+      const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const firstDayOffset = startDate.getDay();
+
+      for (let i = 0; i < firstDayOffset; i += 1) {
+        const blankCell = document.createElement("div");
+        blankCell.className = "clinic-day-cell";
+        blankCell.style.visibility = "hidden";
+        clinicCalendarGrid.appendChild(blankCell);
+      }
+
+      for (let dayOffset = 0; dayOffset < 28; dayOffset += 1) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + dayOffset);
+        const label = formatClinicDateLabelFromDate(date);
+        const isActive = availableLabels.has(label);
+
+        const dayButton = document.createElement("button");
+        dayButton.type = "button";
+        dayButton.className = "clinic-day-cell";
+        if (isActive) {
+          dayButton.classList.add("is-active-date");
+        }
+        if (selectedClinicDateLabel === label) {
+          dayButton.classList.add("is-selected");
+        }
+
+        const dayNumber = document.createElement("span");
+        dayNumber.textContent = String(date.getDate());
+        dayButton.appendChild(dayNumber);
+
+        if (isActive) {
+          const dot = document.createElement("span");
+          dot.className = "clinic-day-dot";
+          dayButton.appendChild(dot);
+          dayButton.addEventListener("click", () => {
+            selectedClinicDateLabel = label;
+            renderClinicCalendar();
+            renderClinicsForSelectedDate();
+          });
+        }
+
+        clinicCalendarGrid.appendChild(dayButton);
+      }
+    };
+
+    const syncPostBloodTestVisibility = () => {
+      const hasBloodTest = hiddenInput.value.trim() !== "";
+      const shouldShowPostFields = isTestMode || hasBloodTest;
+      detailsField.hidden = !shouldShowPostFields;
+      supportRow.hidden = !shouldShowPostFields;
+      labField.hidden = !shouldShowPostFields;
+      const hasLabSource = labInput.value.trim() !== "";
+      const shouldShowAppointmentLocation = isTestMode || (hasBloodTest && hasLabSource);
+      appointmentLocationField.hidden = !shouldShowAppointmentLocation;
+
+      if (!shouldShowAppointmentLocation) {
+        appointmentLocationInput.value = "";
+        locationButtons.forEach((button) => button.classList.remove("is-selected"));
+        selectedClinicInput.value = "";
+        clinicCards.forEach((card) => card.classList.remove("is-selected"));
+      }
+
+      syncClinicAvailabilityVisibility();
+      syncMobileSlotsVisibility();
+    };
+
+    const setAboutYouPageVisibility = (isVisible) => {
+      isAboutYouPageVisible = isVisible;
+      isSummaryPageVisible = false;
+      aboutYouPage.hidden = !isVisible;
+      summaryPage.hidden = true;
+
+      formTitle.hidden = isVisible;
+      formIntro.hidden = isVisible;
+      detailsRow.hidden = isVisible;
+      bloodTestField.hidden = isVisible;
+      detailsField.hidden = isVisible;
+      supportRow.hidden = isVisible;
+      labField.hidden = isVisible;
+      appointmentLocationField.hidden = isVisible;
+      clinicAvailabilityField.hidden = isVisible;
+      mobileSlotsField.hidden = isVisible;
+      priceBox.hidden = isVisible;
+      formNextWrap.hidden = isVisible;
+
+      if (!isVisible) {
+        syncBloodTestVisibility();
+      } else {
+        updateAboutSelectionSummary();
+      }
+
+      panelForm.scrollTop = 0;
+    };
+
+    const syncPriceContent = () => {
+      const isClinic = appointmentLocationInput.value === "clinic";
+      priceRange.textContent = isClinic ? "£50-£70" : "£60-£80";
+      priceTextLine1.textContent = isClinic
+        ? "The final price will be confirmed when your selected clinic confirms your appointment and collection requirements."
+        : "The final price will be confirmed when one of your closest phlebotomists accepts the appointment. The price can change based on the distance the phlebotomist has to travel.";
+      priceTextLine2.textContent = "You will not be asked for payment until the appointment has been confirmed by a phlebotomist, and the date, time and price have been finalised.";
+    };
+
+    const syncPriceBoxVisibility = () => {
+      let shouldShowPrice = false;
+      if (appointmentLocationInput.value === "mobile") {
+        shouldShowPrice = selectedSlots.size > 0 && !mobileSlotsField.hidden;
+      }
+
+      priceBox.hidden = !shouldShowPrice;
+      syncFormNextVisibility();
+    };
+
+    const syncFormNextVisibility = () => {
+      const shouldShowNextButton = !isAboutYouPageVisible && !isSummaryPageVisible && !priceBox.hidden;
+      formNextWrap.hidden = !shouldShowNextButton;
+    };
+
+    const setSummaryPageVisibility = (isVisible) => {
+      isSummaryPageVisible = isVisible;
+      isAboutYouPageVisible = false;
+      summaryPage.hidden = !isVisible;
+      aboutYouPage.hidden = true;
+
+      formTitle.hidden = isVisible;
+      formIntro.hidden = isVisible;
+      detailsRow.hidden = isVisible;
+      bloodTestField.hidden = isVisible;
+      detailsField.hidden = isVisible;
+      supportRow.hidden = isVisible;
+      labField.hidden = isVisible;
+      appointmentLocationField.hidden = isVisible;
+      clinicAvailabilityField.hidden = isVisible;
+      mobileSlotsField.hidden = isVisible;
+      priceBox.hidden = isVisible;
+      formNextWrap.hidden = isVisible;
+
+      if (!isVisible) {
+        setAboutYouPageVisibility(true);
+      }
+
+      panelForm.scrollTop = 0;
+    };
+
+    const resetCentrifuge = () => {
+      centrifugeInput.value = "no";
+      centrifugeButtons.forEach((btn) => {
+        btn.classList.toggle("is-active", btn.dataset.choice === "no");
+      });
+    };
+
+    const getConfidenceScore = () => {
+      return Math.min(99.8, 60 + (selectedSlots.size * 7.96));
+    };
+
+    const formatConfidence = (value) => {
+      return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1);
+    };
+
+    const updateConfidence = () => {
+      const score = getConfidenceScore();
+      const formatted = formatConfidence(score);
+      confidenceValue.textContent = `${formatted}%`;
+      confidenceText.textContent = `Based on availability, there is a ${formatted}% chance at least one phlebotomist can accept your appointment.`;
+      syncPriceBoxVisibility();
+    };
+
+    const renderMobileSlots = () => {
+      const dayFormatter = new Intl.DateTimeFormat("en-GB", { weekday: "long" });
+      const monthFormatter = new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric" });
+      slotsGrid.innerHTML = "";
+
+      for (let dayIndex = 0; dayIndex < 5; dayIndex += 1) {
+        const date = new Date(scheduleStartDate);
+        date.setDate(scheduleStartDate.getDate() + scheduleOffsetDays + dayIndex);
+        const dateKey = date.toISOString().slice(0, 10);
+
+        const column = document.createElement("div");
+        column.className = "day-column";
+
+        const dayCard = document.createElement("div");
+        dayCard.className = "day-card";
+        dayCard.innerHTML = `
+          <span class="day-name">${dayFormatter.format(date)}</span>
+          <span class="day-number">${date.getDate()}${date.getDate() === 1 ? "st" : date.getDate() === 2 ? "nd" : date.getDate() === 3 ? "rd" : "th"}</span>
+          <span class="day-month">${monthFormatter.format(date)}</span>
+        `;
+        column.appendChild(dayCard);
+
+        slotOptions.forEach((slotLabel) => {
+          const slotKey = `${dateKey}|${slotLabel}`;
+          const slotButton = document.createElement("button");
+          slotButton.type = "button";
+          slotButton.className = "slot-btn";
+          slotButton.textContent = slotLabel;
+          slotButton.dataset.slotKey = slotKey;
+
+          if (selectedSlots.has(slotKey)) {
+            slotButton.classList.add("is-selected");
+          }
+
+          slotButton.addEventListener("click", () => {
+            if (selectedSlots.has(slotKey)) {
+              selectedSlots.delete(slotKey);
+              slotButton.classList.remove("is-selected");
+              updateConfidence();
+              return;
+            }
+
+            if (selectedSlots.size >= maxSelectableSlots) {
+              return;
+            }
+
+            selectedSlots.add(slotKey);
+            slotButton.classList.add("is-selected");
+            updateConfidence();
+          });
+
+          column.appendChild(slotButton);
+        });
+
+        slotsGrid.appendChild(column);
+      }
+
+      slotsPrev.disabled = scheduleOffsetDays === 0;
+      updateConfidence();
+    };
+
+    const formatDateForSummary = (dateKey) => {
+      const parts = dateKey.split("-");
+      if (parts.length !== 3) return dateKey;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    };
+
+    const buildSummaryDateLines = () => {
+      if (appointmentLocationInput.value === "clinic") {
+        if (!selectedClinicInput.value) {
+          return "No clinic selected yet.";
+        }
+        const selectedClinicCard = Array.from(clinicCards).find((card) => card.classList.contains("is-selected"));
+        const nextSlotLabel = selectedClinicCard?.dataset.clinicNextSlot || "To be confirmed";
+        return `${selectedClinicInput.value}: ${nextSlotLabel}`;
+      }
+
+      if (selectedSlots.size === 0) {
+        return "No time slots selected yet.";
+      }
+
+      const slotsByDate = new Map();
+      Array.from(selectedSlots)
+        .sort()
+        .forEach((slotKey) => {
+          const [dateKey, slotLabel] = slotKey.split("|");
+          if (!slotsByDate.has(dateKey)) {
+            slotsByDate.set(dateKey, []);
+          }
+          slotsByDate.get(dateKey).push(slotLabel);
+        });
+
+      return Array.from(slotsByDate.entries())
+        .map(([dateKey, slots]) => `${formatDateForSummary(dateKey)}: ${slots.join(", ")}`)
+        .join("\n");
+    };
+
+    const updateAboutSelectionSummary = () => {
+      const isClinic = appointmentLocationInput.value === "clinic";
+      const hasSelection = isClinic ? selectedClinicInput.value.trim() !== "" : selectedSlots.size > 0;
+
+      if (!hasSelection) {
+        aboutSelectionSummary.hidden = true;
+        aboutSelectionTitle.textContent = "";
+        aboutSelectionLines.textContent = "";
+        return;
+      }
+
+      aboutSelectionSummary.hidden = false;
+      aboutSelectionTitle.textContent = isClinic
+        ? "Selected clinic appointment"
+        : "Selected mobile appointment slots";
+      aboutSelectionLines.textContent = buildSummaryDateLines();
+    };
+
+    const updateSummaryContent = () => {
+      const locationLabel = appointmentLocationInput.value === "clinic" ? "clinic" : "mobile";
+      summaryIntro.textContent = `You have requested for a phlebotomist to ${locationLabel === "clinic" ? "book you into a clinic appointment" : "come to your address"} to collect your blood for a blood test.`;
+
+      const bloodTestLabel = hiddenInput.value || "Other private blood test";
+      const centrifugeLabel = centrifugeInput.value === "yes" ? "Centrifuge required" : "No centrifuge required";
+      summaryTestLines.textContent = `${bloodTestLabel}\n${centrifugeLabel}`;
+
+      summaryDatesLines.textContent = buildSummaryDateLines();
+      summaryAddressLines.textContent = aboutAddressInput.value.trim() || "Address not provided yet.";
+
+      const isClinic = appointmentLocationInput.value === "clinic";
+      summaryAppointmentCostLabel.textContent = isClinic ? "Clinic appointment:" : "Mobile phlebotomy appointment:";
+      const baseRange = isClinic ? "£50-£70" : "£60-£80";
+      const totalRange = centrifugeInput.value === "yes"
+        ? (isClinic ? "£70-£90" : "£80-£100")
+        : baseRange;
+
+      summaryAppointmentCostValue.textContent = `${baseRange} (final price to be confirmed)`;
+      summaryCentrifugeCost.textContent = centrifugeInput.value === "yes" ? "£20" : "£0";
+      summaryTotalCost.textContent = totalRange;
+    };
+
+    const resetMobileSlots = () => {
+      selectedSlots.clear();
+      scheduleOffsetDays = 0;
+      renderMobileSlots();
+    };
+
+    const syncMobileSlotsVisibility = () => {
+      const shouldShow = appointmentLocationInput.value === "mobile" && !appointmentLocationField.hidden;
+      mobileSlotsField.hidden = !shouldShow;
+      if (!shouldShow) {
+        syncPriceBoxVisibility();
+      } else {
+        syncPriceContent();
+        updateConfidence();
+      }
+    };
+
+    const syncClinicAvailabilityVisibility = () => {
+      const shouldShow = appointmentLocationInput.value === "clinic" && !appointmentLocationField.hidden;
+      clinicAvailabilityField.hidden = !shouldShow;
+      syncClinicModeView();
+      if (shouldShow) {
+        renderClinicCalendar();
+        renderClinicsForSelectedDate();
+      }
+      syncPriceContent();
+      syncPriceBoxVisibility();
+    };
+
+    const clearAddressSuggestions = () => {
+      aboutAddressOptions.innerHTML = "";
+    };
+
+    const renderAddressSuggestions = (results) => {
+      const seen = new Set();
+      clearAddressSuggestions();
+
+      results.forEach((item) => {
+        const label = item.display_name;
+        if (!label || seen.has(label)) {
+          return;
+        }
+        seen.add(label);
+        const option = document.createElement("option");
+        option.value = label;
+        aboutAddressOptions.appendChild(option);
+      });
+    };
+
+    const sleep = (ms) => {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+    };
+
+    const fetchAddressSuggestions = async (query) => {
+      const normalizedQuery = query.trim().toLowerCase();
+      if (!normalizedQuery) {
+        clearAddressSuggestions();
+        return;
+      }
+
+      const cachedResults = addressSuggestionCache.get(normalizedQuery);
+      if (cachedResults) {
+        renderAddressSuggestions(cachedResults);
+        return;
+      }
+
+      if (addressLookupAbortController) {
+        addressLookupAbortController.abort();
+      }
+
+      const lookupAbortController = new AbortController();
+      addressLookupAbortController = lookupAbortController;
+
+      try {
+        const elapsedSinceLastRequest = Date.now() - lastAddressRequestStartedAt;
+        const waitMs = Math.max(0, ADDRESS_LOOKUP_MIN_INTERVAL_MS - elapsedSinceLastRequest);
+        if (waitMs > 0) {
+          await sleep(waitMs);
+        }
+
+        if (lookupAbortController.signal.aborted) {
+          return;
+        }
+
+        lastAddressRequestStartedAt = Date.now();
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=gb&limit=6&accept-language=en-GB&q=${encodeURIComponent(query)}`,
+          {
+            method: "GET",
+            signal: lookupAbortController.signal,
+          },
+        );
+
+        if (!response.ok) {
+          clearAddressSuggestions();
+          return;
+        }
+
+        const results = await response.json();
+        addressSuggestionCache.set(normalizedQuery, results);
+        if (addressSuggestionCache.size > ADDRESS_CACHE_LIMIT) {
+          const oldestKey = addressSuggestionCache.keys().next().value;
+          addressSuggestionCache.delete(oldestKey);
+        }
+        renderAddressSuggestions(results);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          clearAddressSuggestions();
+        }
+      }
+    };
+
+    trigger.addEventListener("click", () => {
+      const isOpen = customSelect.classList.toggle("open");
+      trigger.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    options.forEach((option) => {
+      option.addEventListener("click", (event) => {
+        if (event.target.closest(".info-btn") || event.target.closest(".mini-toggle-btn")) {
+          event.stopPropagation();
+          return;
+        }
+
+        const selectedValue = option.dataset.value || "";
+        hiddenInput.value = selectedValue;
+        trigger.textContent = selectedValue;
+
+        options.forEach((item) => item.setAttribute("aria-selected", "false"));
+        option.setAttribute("aria-selected", "true");
+        syncPostBloodTestVisibility();
+        closeMenu();
+      });
+    });
+
+    centrifugeButtons.forEach((toggleButton) => {
+      toggleButton.addEventListener("click", () => {
+        centrifugeButtons.forEach((btn) => btn.classList.remove("is-active"));
+        toggleButton.classList.add("is-active");
+        centrifugeInput.value = toggleButton.dataset.choice || "no";
+      });
+    });
+
+    locationButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        locationButtons.forEach((item) => item.classList.remove("is-selected"));
+        button.classList.add("is-selected");
+        appointmentLocationInput.value = button.dataset.location || "";
+
+        if (appointmentLocationInput.value === "clinic") {
+          selectedSlots.clear();
+          renderMobileSlots();
+          if (!selectedClinicDateLabel) {
+            const firstAvailable = clinicSchedules["1"]?.[0]?.date || "";
+            selectedClinicDateLabel = firstAvailable;
+          }
+        } else {
+          selectedClinicInput.value = "";
+          clinicCards.forEach((card) => card.classList.remove("is-selected"));
+        }
+
+        syncClinicAvailabilityVisibility();
+        syncMobileSlotsVisibility();
+      });
+    });
+
+    clinicModeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        clinicModeButtons.forEach((item) => item.classList.remove("is-active"));
+        button.classList.add("is-active");
+        selectedClinicMode = button.dataset.clinicMode || "near";
+        if (selectedClinicMode === "date" && !selectedClinicDateLabel) {
+          const firstAvailable = clinicSchedules["1"]?.[0]?.date || "";
+          selectedClinicDateLabel = firstAvailable;
+        }
+        syncClinicModeView();
+        renderClinicCalendar();
+        renderClinicsForSelectedDate();
+      });
+    });
+
+    clinicCards.forEach((card) => {
+      const viewButton = card.querySelector(".clinic-view-btn");
+      if (!viewButton) return;
+
+      viewButton.addEventListener("click", () => {
+        const clinicId = card.dataset.clinicId || "";
+        const clinicName = card.dataset.clinicName || "";
+        const clinicAddress = card.dataset.clinicAddress || "";
+        const slots = clinicSchedules[clinicId] || [];
+        const [firstSlot] = slots;
+
+        clinicModalName.textContent = clinicName;
+        clinicModalAddress.textContent = clinicAddress;
+        clinicModalDate.textContent = firstSlot ? firstSlot.date : "";
+        clinicSlotList.innerHTML = "";
+
+        slots.forEach((slot) => {
+          const slotItem = document.createElement("div");
+          slotItem.className = "clinic-slot-item";
+
+          const slotTime = document.createElement("p");
+          slotTime.className = "clinic-slot-time";
+          const slotPrice = slot.price || "£35";
+          slotTime.innerHTML = `Next Slot <strong>${slot.date}, ${slot.time}</strong><span class="clinic-slot-price">${slotPrice}</span>`;
+
+          const bookButton = document.createElement("button");
+          bookButton.type = "button";
+          bookButton.className = "clinic-book-btn";
+          bookButton.textContent = "Book Appointment";
+
+          bookButton.addEventListener("click", () => {
+            const selectedSlotLabel = `${slot.date}, ${slot.time}`;
+            applyClinicSelection(card, selectedSlotLabel);
+            closeClinicAvailabilityModal();
+            setAboutYouPageVisibility(true);
+          });
+
+          slotItem.appendChild(slotTime);
+          slotItem.appendChild(bookButton);
+          clinicSlotList.appendChild(slotItem);
+        });
+
+        clinicModal.classList.add("is-open");
+      });
+    });
+
+    closeClinicModal.addEventListener("click", closeClinicAvailabilityModal);
+
+    clinicModal.addEventListener("click", (event) => {
+      if (event.target === clinicModal) {
+        closeClinicAvailabilityModal();
+      }
+    });
+
+    goToAboutYou.addEventListener("click", () => {
+      setAboutYouPageVisibility(true);
+    });
+
+    backToForm.addEventListener("click", () => {
+      setAboutYouPageVisibility(false);
+    });
+
+    aboutContinueBtn.addEventListener("click", () => {
+      updateSummaryContent();
+      setSummaryPageVisibility(true);
+    });
+
+    summaryBackToAbout.addEventListener("click", () => {
+      setSummaryPageVisibility(false);
+      syncFormNextVisibility();
+    });
+
+    summaryEditTest.addEventListener("click", () => {
+      setAboutYouPageVisibility(false);
+      panelForm.scrollTop = 0;
+    });
+
+    summaryEditDates.addEventListener("click", () => {
+      setAboutYouPageVisibility(false);
+      panelForm.scrollTop = appointmentLocationInput.value === "clinic"
+        ? clinicAvailabilityField.offsetTop - 10
+        : mobileSlotsField.offsetTop - 10;
+    });
+
+    summaryEditAddress.addEventListener("click", () => {
+      setSummaryPageVisibility(false);
+      panelForm.scrollTop = 0;
+      aboutAddressInput.focus();
+    });
+
+    summarySubmitBtn.addEventListener("click", () => {
+      alert("Request sent to nearby phlebotomists.");
+    });
+
+    aboutAddressInput.addEventListener("input", () => {
+      const query = aboutAddressInput.value.trim();
+
+      if (addressDebounceTimer) {
+        clearTimeout(addressDebounceTimer);
+      }
+
+      if (query.length < ADDRESS_QUERY_MIN_LENGTH) {
+        if (addressLookupAbortController) {
+          addressLookupAbortController.abort();
+        }
+        clearAddressSuggestions();
+        return;
+      }
+
+      addressDebounceTimer = setTimeout(() => {
+        fetchAddressSuggestions(query);
+      }, ADDRESS_DEBOUNCE_MS);
+    });
+
+    slotsPrev.addEventListener("click", () => {
+      scheduleOffsetDays = Math.max(0, scheduleOffsetDays - 5);
+      renderMobileSlots();
+    });
+
+    slotsNext.addEventListener("click", () => {
+      scheduleOffsetDays += 5;
+      renderMobileSlots();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!customSelect.contains(event.target)) {
+        closeMenu();
+      }
+    });
+
+    const syncBloodTestVisibility = () => {
+      const hasReason = reasonSelect.value.trim() !== "";
+      const shouldShowBloodTest = isTestMode || hasReason;
+      bloodTestField.hidden = !shouldShowBloodTest;
+
+      if (!shouldShowBloodTest) {
+        closeMenu();
+        hiddenInput.value = "";
+        trigger.textContent = "Click to choose";
+        options.forEach((item) => item.setAttribute("aria-selected", "false"));
+        resetCentrifuge();
+      }
+
+      syncPostBloodTestVisibility();
+    };
+
+    reasonSelect.addEventListener("change", syncBloodTestVisibility);
+    labInput.addEventListener("input", syncPostBloodTestVisibility);
+    labInput.addEventListener("change", syncPostBloodTestVisibility);
+    syncClinicModeView();
+    renderClinicCalendar();
+    renderClinicsForSelectedDate();
+    renderMobileSlots();
+    syncBloodTestVisibility();
+
+    testModeToggle.addEventListener("click", () => {
+      isTestMode = !isTestMode;
+      testModeToggle.classList.toggle("is-active", isTestMode);
+      testModeToggle.title = isTestMode
+        ? "Test mode on (showing all fields)"
+        : "Toggle test mode (show all fields)";
+      syncBloodTestVisibility();
+    });
+
+    resetFormToggle.addEventListener("click", () => {
+      panelForm.reset();
+      closeMenu();
+      closeModal();
+      closeClinicAvailabilityModal();
+      hiddenInput.value = "";
+      trigger.textContent = "Click to choose";
+      options.forEach((item) => item.setAttribute("aria-selected", "false"));
+      resetCentrifuge();
+      appointmentLocationInput.value = "";
+      locationButtons.forEach((button) => button.classList.remove("is-selected"));
+      selectedClinicInput.value = "";
+      clinicCards.forEach((card) => card.classList.remove("is-selected"));
+      clinicModeButtons.forEach((button, index) => button.classList.toggle("is-active", index === 0));
+      selectedClinicMode = "near";
+      selectedClinicDateLabel = "";
+      syncClinicModeView();
+      renderClinicCalendar();
+      renderClinicsForSelectedDate();
+      resetMobileSlots();
+      clearAddressSuggestions();
+      isTestMode = false;
+      isAboutYouPageVisible = false;
+      isSummaryPageVisible = false;
+      testModeToggle.classList.remove("is-active");
+      testModeToggle.title = "Toggle test mode (show all fields)";
+      setAboutYouPageVisibility(false);
+      syncFormNextVisibility();
+    });
+
+    const openModal = () => {
+      contactModal.classList.add("is-open");
+      supportNameInput.focus();
+    };
+
+    const closeModal = () => {
+      contactModal.classList.remove("is-open");
+    };
+
+    openContactModal.addEventListener("click", openModal);
+    closeContactModal.addEventListener("click", closeModal);
+
+    contactModal.addEventListener("click", (event) => {
+      if (event.target === contactModal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+        closeClinicAvailabilityModal();
+      }
+    });
+
+    contactSupportForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      closeModal();
+      contactSupportForm.reset();
+      alert("Thanks. We will contact you shortly.");
+    });
+  </script>
+</body>
+</html>
