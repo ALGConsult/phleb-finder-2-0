@@ -138,6 +138,44 @@
       line-height: 1.1;
     }
 
+    .typeahead {
+      position: relative;
+    }
+
+    .typeahead-list {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 3px);
+      margin: 0;
+      padding: 4px 0;
+      list-style: none;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+      z-index: 40;
+      max-height: 180px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .typeahead-list.is-open {
+      display: block;
+    }
+
+    .typeahead-option {
+      padding: 7px 10px;
+      font-size: clamp(11px, 0.82vw, 15px);
+      line-height: 1.2;
+      color: #3f3f3f;
+      cursor: pointer;
+    }
+
+    .typeahead-option:hover {
+      background: #fff3f7;
+    }
+
     .blood-test-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 220px;
@@ -1608,16 +1646,10 @@
 
       <div class="field" id="lab-field" hidden>
         <label for="lab">Where is your test kit from?</label>
-        <input id="lab" name="lab" type="text" list="lab-options" placeholder="Start typing the Lab Name here">
-        <datalist id="lab-options">
-          <option value="Functional DX"></option>
-          <option value="Vibrant Wellness"></option>
-          <option value="Future Genomics Innovation Hub (FGIH)"></option>
-          <option value="The Parasite Clinic"></option>
-          <option value="Academy of Nutritional Health (AONM) / Armin Labs"></option>
-          <option value="HEAL Labs"></option>
-          <option value="Other Private Blood Test"></option>
-        </datalist>
+        <div class="typeahead" id="lab-typeahead">
+          <input id="lab" name="lab" type="text" autocomplete="off" placeholder="Start typing the Lab Name here">
+          <ul class="typeahead-list" id="lab-suggestions"></ul>
+        </div>
       </div>
 
       <div class="appointment-location" id="appointment-location-field" hidden>
@@ -1920,6 +1952,8 @@
     const supportRow = document.getElementById("support-row");
     const labField = document.getElementById("lab-field");
     const labInput = document.getElementById("lab");
+    const labTypeahead = document.getElementById("lab-typeahead");
+    const labSuggestions = document.getElementById("lab-suggestions");
     const appointmentLocationField = document.getElementById("appointment-location-field");
     const appointmentLocationInput = document.getElementById("appointment-location");
     const locationButtons = document.querySelectorAll(".location-card");
@@ -1984,6 +2018,15 @@
     const ADDRESS_DEBOUNCE_MS = 350;
     const ADDRESS_LOOKUP_MIN_INTERVAL_MS = 1000;
     const ADDRESS_CACHE_LIMIT = 60;
+    const LAB_OPTIONS = [
+      "Functional DX",
+      "Vibrant Wellness",
+      "Future Genomics Innovation Hub (FGIH)",
+      "The Parasite Clinic",
+      "Academy of Nutritional Health (AONM) / Armin Labs",
+      "HEAL Labs",
+      "Other Private Blood Test",
+    ];
     const maxSelectableSlots = 5;
     const slotOptions = ["Anytime", "08:00 - 10:00", "10:00 - 12:00", "12:00 - 14:00", "14:00 - 16:00", "16:00 - 18:00", "18:00 - 20:00"];
     const selectedSlots = new Set();
@@ -2465,6 +2508,42 @@
       aboutAddressOptions.innerHTML = "";
     };
 
+    const closeLabSuggestions = () => {
+      labSuggestions.classList.remove("is-open");
+      labSuggestions.innerHTML = "";
+    };
+
+    const renderLabSuggestions = (query) => {
+      const normalized = query.trim().toLowerCase();
+      if (normalized.length < 2) {
+        closeLabSuggestions();
+        return;
+      }
+
+      const matches = LAB_OPTIONS.filter((option) =>
+        option.toLowerCase().includes(normalized),
+      ).slice(0, 6);
+
+      if (matches.length === 0) {
+        closeLabSuggestions();
+        return;
+      }
+
+      labSuggestions.innerHTML = "";
+      matches.forEach((optionText) => {
+        const item = document.createElement("li");
+        item.className = "typeahead-option";
+        item.textContent = optionText;
+        item.addEventListener("click", () => {
+          labInput.value = optionText;
+          closeLabSuggestions();
+          syncPostBloodTestVisibility();
+        });
+        labSuggestions.appendChild(item);
+      });
+      labSuggestions.classList.add("is-open");
+    };
+
     const renderAddressSuggestions = (results) => {
       const seen = new Set();
       clearAddressSuggestions();
@@ -2729,6 +2808,20 @@
       }, ADDRESS_DEBOUNCE_MS);
     });
 
+    labInput.addEventListener("input", () => {
+      renderLabSuggestions(labInput.value);
+    });
+
+    labInput.addEventListener("focus", () => {
+      renderLabSuggestions(labInput.value);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!labTypeahead.contains(event.target)) {
+        closeLabSuggestions();
+      }
+    });
+
     slotsPrev.addEventListener("click", () => {
       scheduleOffsetDays = Math.max(0, scheduleOffsetDays - 5);
       renderMobileSlots();
@@ -2800,6 +2893,7 @@
       renderClinicsForSelectedDate();
       resetMobileSlots();
       clearAddressSuggestions();
+      closeLabSuggestions();
       isTestMode = false;
       isAboutYouPageVisible = false;
       isSummaryPageVisible = false;
