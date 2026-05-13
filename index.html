@@ -138,6 +138,41 @@
       line-height: 1.1;
     }
 
+    .step-tracker {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .step-chip {
+      position: relative;
+      color: #7a6a70;
+      font-size: clamp(10px, 0.74vw, 12px);
+      line-height: 1.15;
+      padding: 0;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .step-chip.is-active {
+      color: #ec4f7a;
+      font-weight: 700;
+    }
+
+    .step-chip.is-complete {
+      color: #5f4a53;
+      font-weight: 600;
+    }
+
+    .step-chip:not(:last-child)::after {
+      content: ">";
+      color: #b79ca7;
+      margin-left: 6px;
+      font-weight: 500;
+    }
+
     .typeahead {
       position: relative;
     }
@@ -146,7 +181,7 @@
       position: absolute;
       left: 0;
       right: 0;
-      top: calc(100% + 3px);
+      bottom: calc(100% + 3px);
       margin: 0;
       padding: 4px 0;
       list-style: none;
@@ -178,13 +213,31 @@
 
     .blood-test-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 220px;
-      gap: 12px;
-      align-items: end;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .kit-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
     }
 
     @media (max-width: 980px) {
       .blood-test-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .private-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 12px;
+      align-items: end;
+    }
+
+    @media (max-width: 980px) {
+      .private-options-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -238,6 +291,76 @@
     .custom-select-trigger {
       padding-right: 34px;
       color: #595959;
+    }
+
+    .blood-test-select-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .custom-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .custom-select-wrap .custom-select {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .remove-blood-test-btn {
+      width: 28px;
+      min-width: 28px;
+      height: 28px;
+      border: 1px solid #ec4f7a;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #ec4f7a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 18px;
+      line-height: 1;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .remove-blood-test-btn:hover {
+      background: #fff1f5;
+      border-color: #d93f6c;
+      color: #d93f6c;
+    }
+
+    .remove-blood-test-btn:focus-visible {
+      outline: 2px solid #f28da8;
+      outline-offset: 2px;
+    }
+
+    .add-blood-test-btn {
+      margin-top: 8px;
+      border: 1px solid #d9b7c2;
+      background: #ffffff;
+      color: #8c4e63;
+      border-radius: 8px;
+      font-size: clamp(11px, 0.8vw, 13px);
+      font-weight: 600;
+      line-height: 1.2;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .add-blood-test-btn:hover {
+      background: #fff4f8;
+      border-color: #ec4f7a;
+      color: #703145;
+    }
+
+    .add-blood-test-btn:focus-visible {
+      outline: 2px solid #f28da8;
+      outline-offset: 2px;
     }
 
     .custom-select-menu {
@@ -703,6 +826,33 @@
       font-weight: 800;
     }
 
+    .clinic-next-slot-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clinic-calendar-btn {
+      width: 22px;
+      min-width: 22px;
+      height: 22px;
+      border: 1px solid #ef9ab0;
+      border-radius: 6px;
+      background: #fff7fa;
+      color: #ec4f7a;
+      font-size: 13px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .clinic-calendar-btn:hover {
+      background: #ffeaf1;
+    }
+
     .clinic-view-btn {
       width: auto;
       border: 1px solid #de4d79;
@@ -719,6 +869,124 @@
 
     .clinic-view-btn:hover {
       background: #df3f6d;
+    }
+
+    .clinic-inline-availability {
+      margin-top: 6px;
+      display: grid;
+      gap: 8px;
+      border-top: 1px solid #f3c2d1;
+      padding-top: 8px;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .clinic-inline-scheduler {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .clinic-inline-scheduler {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .clinic-inline-calendar-panel,
+    .clinic-inline-times-panel {
+      border: 1px solid #ef9ab0;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .clinic-inline-heading {
+      margin: 0;
+      font-size: clamp(14px, 1vw, 18px);
+      line-height: 1.1;
+      color: #3a3a3a;
+      font-weight: 700;
+    }
+
+    .clinic-inline-subtitle {
+      margin: 0;
+      font-size: clamp(11px, 0.82vw, 15px);
+      line-height: 1.2;
+      color: #4f4f4f;
+    }
+
+    .clinic-inline-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      text-align: center;
+      font-size: clamp(10px, 0.74vw, 12px);
+      color: #67707d;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .clinic-inline-date-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .clinic-inline-date-btn {
+      width: 100%;
+      border: 1px solid #ef9ab0;
+      border-radius: 10px;
+      background: #fff7fa;
+      color: #5f5f5f;
+      font-size: clamp(12px, 0.85vw, 14px);
+      font-weight: 700;
+      line-height: 1.1;
+      padding: 7px 4px;
+      height: auto;
+      text-align: center;
+    }
+
+    .clinic-inline-date-btn.is-selected {
+      background: #ec4f7a;
+      color: #ffffff;
+      border-color: #de4d79;
+    }
+
+    .clinic-inline-times-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .clinic-inline-time-btn {
+      width: 100%;
+      border: 1px solid #ef9ab0;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #2f3f4f;
+      font-size: clamp(12px, 0.85vw, 15px);
+      font-weight: 700;
+      line-height: 1.1;
+      padding: 8px 10px;
+      text-align: left;
+      height: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .clinic-inline-time-btn:hover {
+      background: #fff3f7;
+    }
+
+    .clinic-inline-time-btn .price {
+      color: #3f3f3f;
+      font-weight: 700;
+      font-size: clamp(11px, 0.8vw, 14px);
     }
 
     .clinic-date-view {
@@ -1160,6 +1428,12 @@
       margin-top: 2px;
     }
 
+    .appointment-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
     .form-next-btn {
       width: 100%;
       border: 1px solid #de4d79;
@@ -1175,6 +1449,11 @@
 
     .form-next-btn:hover {
       background: #df3f6d;
+    }
+
+    .form-next-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     .about-you-page {
@@ -1475,6 +1754,12 @@
   <div class="canvas">
     <form class="panel-form">
       <h1 id="form-title">Phleb Finder 2.0</h1>
+      <div class="step-tracker" id="step-tracker" aria-label="Form progress">
+        <span class="step-chip is-active" data-step="details">Test details</span>
+        <span class="step-chip" data-step="appointment">Appointment details</span>
+        <span class="step-chip" data-step="about">About you</span>
+        <span class="step-chip" data-step="summary">Summary</span>
+      </div>
       <p id="form-intro">Please complete this form and we will connect you with your nearest mobile phlebotomist or phlebotomy clinic.</p>
 
       <div class="grid-2" id="details-row">
@@ -1500,14 +1785,15 @@
       <div class="blood-test-row" id="blood-test-field" hidden>
         <div class="field">
           <label for="blood-test-trigger">Choose the required blood test</label>
-          <div class="input-wrap">
-            <div class="custom-select" id="blood-test-select">
-              <input type="hidden" id="blood-test" name="blood-test" value="">
-              <button type="button" class="custom-select-trigger" id="blood-test-trigger" aria-haspopup="listbox" aria-expanded="false">
-                Click to choose
-              </button>
-              <span class="caret"></span>
-              <ul class="custom-select-menu" role="listbox" aria-label="Blood test options">
+          <div class="blood-test-select-list" id="blood-test-select-list">
+            <div class="input-wrap custom-select-wrap" data-extra="false">
+              <div class="custom-select" id="blood-test-select">
+                <input type="hidden" id="blood-test" name="blood-test" class="blood-test-hidden-input" value="">
+                <button type="button" class="custom-select-trigger" id="blood-test-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  Click to choose
+                </button>
+                <span class="caret"></span>
+                <ul class="custom-select-menu" role="listbox" aria-label="Blood test options">
               <li class="custom-select-option" role="option" data-value="Active B12 (+£39)" aria-selected="false">
                 <span class="option-text">Active B12 (+£39)</span>
                 <div class="option-actions">
@@ -1608,27 +1894,108 @@
                   </div>
                 </div>
               </li>
-              </ul>
+                </ul>
+              </div>
             </div>
+          </div>
+          <button type="button" class="add-blood-test-btn" id="add-blood-test-btn">Add another blood test</button>
+        </div>
+      </div>
+
+      <div class="field" id="details-field" hidden>
+        <label for="details">Please tell us more about the test</label>
+        <textarea id="details" name="details" placeholder="Please tell us which tests, or which coloured blood bottles are required, or attach a copy of the test request form. If you are not sure, contact us."></textarea>
+      </div>
+
+      <div class="private-options-grid" id="nhs-options-field" hidden>
+        <div class="field centrifuge-field">
+          <span class="centrifuge-label-row">
+            <span class="centrifuge-label">Is the patient under 16?</span>
+            <span class="info-btn" aria-label="More information">i</span>
+          </span>
+          <input type="hidden" id="nhs-under-16" name="nhs-under-16" value="no">
+          <div class="centrifuge-toggle" role="group" aria-label="Is the patient under 16" data-input-id="nhs-under-16">
+            <button type="button" class="centrifuge-btn" data-choice="yes">Yes</button>
+            <button type="button" class="centrifuge-btn is-active" data-choice="no">No</button>
           </div>
         </div>
 
         <div class="field centrifuge-field">
           <span class="centrifuge-label-row">
-            <span class="centrifuge-label">Require Centrifuge?</span>
+            <span class="centrifuge-label">Do we need to despatch the sample to the lab?</span>
             <span class="info-btn" aria-label="More information">i</span>
           </span>
-          <input type="hidden" id="require-centrifuge" name="require-centrifuge" value="no">
-          <div class="centrifuge-toggle" role="group" aria-label="Require centrifuge">
+          <input type="hidden" id="nhs-dispatch-to-lab" name="nhs-dispatch-to-lab" value="no">
+          <div class="centrifuge-toggle" role="group" aria-label="Do we need to despatch the sample to the lab" data-input-id="nhs-dispatch-to-lab">
             <button type="button" class="centrifuge-btn" data-choice="yes">Yes</button>
             <button type="button" class="centrifuge-btn is-active" data-choice="no">No</button>
           </div>
         </div>
       </div>
 
-      <div class="field" id="details-field" hidden>
-        <label for="details">Please tell us more about the test</label>
-        <textarea id="details" name="details" placeholder="Please tell us which tests, or which coloured blood bottles are required, or attach a copy of your test request form. If you are not sure, contact us."></textarea>
+      <div class="kit-row" id="kit-row" hidden>
+        <div class="field" id="lab-field">
+          <label for="lab">Where is the test kit from?</label>
+          <div class="typeahead" id="lab-typeahead">
+            <input id="lab" name="lab" type="text" autocomplete="off" placeholder="Start typing the Lab Name here">
+            <ul class="typeahead-list" id="lab-suggestions"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" id="private-details-field" hidden>
+        <label for="private-details">Please tell us more about the private testing kit request.</label>
+        <textarea id="private-details" name="private-details" placeholder="Please tell us any important details about the private blood testing kit request, including specific tests, bottle requirements, fasting appointments, centrifuged samples, or any special packaging or posting instructions. Please also make sure you leave enough time to receive the testing kit from the chosen lab before your appointment. If you are unsure about any requirements, feel free to contact us to discuss the specific needs."></textarea>
+      </div>
+
+      <div class="private-options-grid" id="private-options-field" hidden>
+        <div class="field centrifuge-field" id="centrifuge-field">
+          <span class="centrifuge-label-row">
+            <span class="centrifuge-label">Require Centrifuge?</span>
+            <span class="info-btn" aria-label="More information">i</span>
+          </span>
+          <input type="hidden" id="require-centrifuge" name="require-centrifuge" value="no">
+          <div class="centrifuge-toggle" role="group" aria-label="Require centrifuge" data-input-id="require-centrifuge">
+            <button type="button" class="centrifuge-btn" data-choice="yes">Yes</button>
+            <button type="button" class="centrifuge-btn is-active" data-choice="no">No</button>
+          </div>
+        </div>
+
+        <div class="field centrifuge-field">
+          <span class="centrifuge-label-row">
+            <span class="centrifuge-label">Are Basic Observations required?</span>
+            <span class="info-btn" aria-label="More information">i</span>
+          </span>
+          <input type="hidden" id="private-basic-observations" name="private-basic-observations" value="no">
+          <div class="centrifuge-toggle" role="group" aria-label="Are Basic Observations required" data-input-id="private-basic-observations">
+            <button type="button" class="centrifuge-btn" data-choice="yes">Yes</button>
+            <button type="button" class="centrifuge-btn is-active" data-choice="no">No</button>
+          </div>
+        </div>
+
+        <div class="field centrifuge-field">
+          <span class="centrifuge-label-row">
+            <span class="centrifuge-label">Is the patient under 16?</span>
+            <span class="info-btn" aria-label="More information">i</span>
+          </span>
+          <input type="hidden" id="private-under-16" name="private-under-16" value="no">
+          <div class="centrifuge-toggle" role="group" aria-label="Is the patient under 16" data-input-id="private-under-16">
+            <button type="button" class="centrifuge-btn" data-choice="yes">Yes</button>
+            <button type="button" class="centrifuge-btn is-active" data-choice="no">No</button>
+          </div>
+        </div>
+
+        <div class="field centrifuge-field">
+          <span class="centrifuge-label-row">
+            <span class="centrifuge-label">Do we need to despatch the sample to the lab?</span>
+            <span class="info-btn" aria-label="More information">i</span>
+          </span>
+          <input type="hidden" id="private-dispatch-to-lab" name="private-dispatch-to-lab" value="no">
+          <div class="centrifuge-toggle" role="group" aria-label="Does the sample require us to despatch it to the lab" data-input-id="private-dispatch-to-lab">
+            <button type="button" class="centrifuge-btn" data-choice="yes">Yes</button>
+            <button type="button" class="centrifuge-btn is-active" data-choice="no">No</button>
+          </div>
+        </div>
       </div>
 
       <div class="support-row" id="support-row" hidden>
@@ -1644,12 +2011,8 @@
         </div>
       </div>
 
-      <div class="field" id="lab-field" hidden>
-        <label for="lab">Where is your test kit from?</label>
-        <div class="typeahead" id="lab-typeahead">
-          <input id="lab" name="lab" type="text" autocomplete="off" placeholder="Start typing the Lab Name here">
-          <ul class="typeahead-list" id="lab-suggestions"></ul>
-        </div>
+      <div class="form-next-wrap" id="details-next-wrap">
+        <button type="button" class="form-next-btn" id="go-to-appointment" disabled>Next: Appointment Details</button>
       </div>
 
       <div class="appointment-location" id="appointment-location-field" hidden>
@@ -1689,27 +2052,45 @@
               <h4 class="clinic-name">Northwell Health Clinic Westminster</h4>
               <p class="clinic-address">221B Baker Street, Westminster, London, NW1 6XE</p>
               <div class="clinic-footer">
-                <p class="clinic-next-slot">Next Available: <strong class="clinic-next-slot-value">Today, 2:30 PM</strong></p>
+                <p class="clinic-next-slot">
+                  <span class="clinic-next-slot-row">
+                    <span>Next Available: <strong class="clinic-next-slot-value">Today, 2:30 PM</strong></span>
+                    <button type="button" class="clinic-calendar-btn" aria-label="Open availability calendar">📅</button>
+                  </span>
+                </p>
                 <button type="button" class="clinic-view-btn">View availability</button>
               </div>
+              <div class="clinic-inline-availability" hidden></div>
             </article>
 
             <article class="clinic-card" data-clinic-id="2" data-clinic-name="CityMed Urgent Care Camden" data-clinic-address="17 Camden High Street, Camden, London, NW1 7JE" data-clinic-next-slot="In 15 mins">
               <h4 class="clinic-name">CityMed Urgent Care Camden</h4>
               <p class="clinic-address">17 Camden High Street, Camden, London, NW1 7JE</p>
               <div class="clinic-footer">
-                <p class="clinic-next-slot">Next Available: <strong class="clinic-next-slot-value">In 15 mins</strong></p>
+                <p class="clinic-next-slot">
+                  <span class="clinic-next-slot-row">
+                    <span>Next Available: <strong class="clinic-next-slot-value">In 15 mins</strong></span>
+                    <button type="button" class="clinic-calendar-btn" aria-label="Open availability calendar">📅</button>
+                  </span>
+                </p>
                 <button type="button" class="clinic-view-btn">View availability</button>
               </div>
+              <div class="clinic-inline-availability" hidden></div>
             </article>
 
             <article class="clinic-card" data-clinic-id="3" data-clinic-name="Mount Sinai Doctors Kensington" data-clinic-address="45 Kensington High Street, Kensington, London, W8 5ED" data-clinic-next-slot="Tomorrow, 9:00 AM">
               <h4 class="clinic-name">Mount Sinai Doctors Kensington</h4>
               <p class="clinic-address">45 Kensington High Street, Kensington, London, W8 5ED</p>
               <div class="clinic-footer">
-                <p class="clinic-next-slot">Next Available: <strong class="clinic-next-slot-value">Tomorrow, 9:00 AM</strong></p>
+                <p class="clinic-next-slot">
+                  <span class="clinic-next-slot-row">
+                    <span>Next Available: <strong class="clinic-next-slot-value">Tomorrow, 9:00 AM</strong></span>
+                    <button type="button" class="clinic-calendar-btn" aria-label="Open availability calendar">📅</button>
+                  </span>
+                </p>
                 <button type="button" class="clinic-view-btn">View availability</button>
               </div>
+              <div class="clinic-inline-availability" hidden></div>
             </article>
           </div>
         </div>
@@ -1769,7 +2150,10 @@
       </div>
 
       <div class="form-next-wrap" id="form-next-wrap">
-        <button type="button" class="form-next-btn" id="go-to-about-you">Next section: About you</button>
+        <div class="appointment-actions">
+          <button type="button" class="about-back-btn" id="back-to-details">Back to previous section</button>
+          <button type="button" class="form-next-btn" id="go-to-about-you">Next section: About you</button>
+        </div>
       </div>
 
       <div class="about-you-page" id="about-you-page" hidden>
@@ -1937,19 +2321,26 @@
   </div>
 
   <script>
-    const customSelect = document.getElementById("blood-test-select");
-    const trigger = document.getElementById("blood-test-trigger");
+    const primaryBloodTestSelect = document.getElementById("blood-test-select");
+    const bloodTestSelectList = document.getElementById("blood-test-select-list");
+    const addBloodTestBtn = document.getElementById("add-blood-test-btn");
     const hiddenInput = document.getElementById("blood-test");
-    const options = customSelect.querySelectorAll(".custom-select-option");
     const centrifugeInput = document.getElementById("require-centrifuge");
-    const centrifugeButtons = document.querySelectorAll(".centrifuge-btn");
+    const yesNoToggleGroups = document.querySelectorAll(".centrifuge-toggle[data-input-id]");
     const reasonSelect = document.getElementById("reason");
     const formTitle = document.getElementById("form-title");
     const formIntro = document.getElementById("form-intro");
+    const stepChips = document.querySelectorAll("#step-tracker .step-chip");
     const detailsRow = document.getElementById("details-row");
     const bloodTestField = document.getElementById("blood-test-field");
+    const centrifugeField = document.getElementById("centrifuge-field");
     const detailsField = document.getElementById("details-field");
+    const nhsOptionsField = document.getElementById("nhs-options-field");
+    const detailsInput = document.getElementById("details");
+    const privateDetailsField = document.getElementById("private-details-field");
+    const privateOptionsField = document.getElementById("private-options-field");
     const supportRow = document.getElementById("support-row");
+    const kitRow = document.getElementById("kit-row");
     const labField = document.getElementById("lab-field");
     const labInput = document.getElementById("lab");
     const labTypeahead = document.getElementById("lab-typeahead");
@@ -1982,7 +2373,10 @@
     const priceRange = document.getElementById("price-range");
     const priceTextLine1 = document.getElementById("price-text-line-1");
     const priceTextLine2 = document.getElementById("price-text-line-2");
+    const detailsNextWrap = document.getElementById("details-next-wrap");
+    const goToAppointment = document.getElementById("go-to-appointment");
     const formNextWrap = document.getElementById("form-next-wrap");
+    const backToDetails = document.getElementById("back-to-details");
     const goToAboutYou = document.getElementById("go-to-about-you");
     const aboutYouPage = document.getElementById("about-you-page");
     const aboutSelectionSummary = document.getElementById("about-selection-summary");
@@ -2043,6 +2437,7 @@
     const addressSuggestionCache = new Map();
     let selectedClinicMode = "near";
     let selectedClinicDateLabel = "";
+    let currentStep = "details";
     const makeClinicDateLabel = (offsetDays) => {
       const date = new Date();
       date.setDate(date.getDate() + offsetDays);
@@ -2070,14 +2465,225 @@
       ],
     };
 
-    const closeMenu = () => {
-      customSelect.classList.remove("open");
-      trigger.setAttribute("aria-expanded", "false");
+    const closeAllBloodTestMenus = (exceptSelect = null) => {
+      const allSelects = bloodTestSelectList.querySelectorAll(".custom-select");
+      allSelects.forEach((selectElement) => {
+        if (exceptSelect && selectElement === exceptSelect) {
+          return;
+        }
+        selectElement.classList.remove("open");
+        const triggerButton = selectElement.querySelector(".custom-select-trigger");
+        if (triggerButton) {
+          triggerButton.setAttribute("aria-expanded", "false");
+        }
+      });
+    };
+
+    const getSelectedBloodTestValues = () => {
+      const bloodTestInputs = bloodTestSelectList.querySelectorAll(".blood-test-hidden-input");
+      return Array.from(bloodTestInputs)
+        .map((input) => input.value.trim())
+        .filter(Boolean);
+    };
+
+    const syncPrimaryBloodTestValue = () => {
+      const selectedValues = getSelectedBloodTestValues();
+      hiddenInput.value = selectedValues[0] || "";
+      return selectedValues;
+    };
+
+    const resetBloodTestSelect = (selectElement, { clearValue = true } = {}) => {
+      const triggerButton = selectElement.querySelector(".custom-select-trigger");
+      const targetInput = selectElement.querySelector(".blood-test-hidden-input");
+      if (targetInput && clearValue) {
+        targetInput.value = "";
+      }
+      if (triggerButton) {
+        triggerButton.textContent = "Click to choose";
+        triggerButton.setAttribute("aria-expanded", "false");
+      }
+      selectElement.classList.remove("open");
+      selectElement.querySelectorAll(".custom-select-option").forEach((optionElement) => {
+        optionElement.setAttribute("aria-selected", "false");
+      });
+    };
+
+    const removeAdditionalBloodTestSelects = () => {
+      const extraSelects = bloodTestSelectList.querySelectorAll(".custom-select-wrap[data-extra='true']");
+      extraSelects.forEach((selectWrap) => {
+        selectWrap.remove();
+      });
+      syncPrimaryBloodTestValue();
+    };
+
+    const wireBloodTestSelect = (selectElement) => {
+      if (!selectElement) {
+        return;
+      }
+      const triggerButton = selectElement.querySelector(".custom-select-trigger");
+      const optionElements = selectElement.querySelectorAll(".custom-select-option");
+      const targetInput = selectElement.querySelector(".blood-test-hidden-input");
+      if (!triggerButton || !targetInput) {
+        return;
+      }
+
+      triggerButton.addEventListener("click", () => {
+        const shouldOpen = !selectElement.classList.contains("open");
+        closeAllBloodTestMenus(selectElement);
+        selectElement.classList.toggle("open", shouldOpen);
+        triggerButton.setAttribute("aria-expanded", String(shouldOpen));
+      });
+
+      optionElements.forEach((optionElement) => {
+        optionElement.addEventListener("click", (event) => {
+          if (event.target.closest(".info-btn") || event.target.closest(".mini-toggle-btn")) {
+            event.stopPropagation();
+            return;
+          }
+
+          const selectedValue = optionElement.dataset.value || "";
+          targetInput.value = selectedValue;
+          triggerButton.textContent = selectedValue || "Click to choose";
+          optionElements.forEach((item) => item.setAttribute("aria-selected", "false"));
+          optionElement.setAttribute("aria-selected", "true");
+          syncPrimaryBloodTestValue();
+          syncPostBloodTestVisibility();
+          closeAllBloodTestMenus();
+        });
+      });
+    };
+
+    const addAnotherBloodTestSelect = () => {
+      const primaryWrap = bloodTestSelectList.querySelector(".custom-select-wrap[data-extra='false']");
+      if (!primaryWrap) {
+        return;
+      }
+
+      const extraCount = bloodTestSelectList.querySelectorAll(".custom-select-wrap[data-extra='true']").length;
+      const clonedWrap = primaryWrap.cloneNode(true);
+      clonedWrap.dataset.extra = "true";
+
+      const clonedSelect = clonedWrap.querySelector(".custom-select");
+      if (clonedSelect) {
+        clonedSelect.removeAttribute("id");
+      }
+
+      const clonedTrigger = clonedWrap.querySelector(".custom-select-trigger");
+      if (clonedTrigger) {
+        clonedTrigger.removeAttribute("id");
+        clonedTrigger.textContent = "Click to choose";
+        clonedTrigger.setAttribute("aria-expanded", "false");
+      }
+
+      const clonedInput = clonedWrap.querySelector(".blood-test-hidden-input");
+      if (clonedInput) {
+        clonedInput.value = "";
+        clonedInput.removeAttribute("id");
+        clonedInput.name = `blood-test-extra-${extraCount + 1}`;
+      }
+
+      clonedWrap.querySelectorAll(".custom-select-option").forEach((optionElement) => {
+        optionElement.setAttribute("aria-selected", "false");
+      });
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "remove-blood-test-btn";
+      removeButton.setAttribute("aria-label", "Remove this blood test");
+      removeButton.title = "Remove this blood test";
+      removeButton.textContent = "×";
+      removeButton.addEventListener("click", () => {
+        closeAllBloodTestMenus();
+        clonedWrap.remove();
+        syncPrimaryBloodTestValue();
+        syncPostBloodTestVisibility();
+      });
+      clonedWrap.appendChild(removeButton);
+
+      bloodTestSelectList.appendChild(clonedWrap);
+      wireBloodTestSelect(clonedSelect);
+    };
+
+    const isNhsReasonSelected = () => {
+      return reasonSelect.value.trim() === "NHS Blood Test (from £60)";
+    };
+
+    const isPrivateKitReasonSelected = () => {
+      return reasonSelect.value.trim() === "Private Blood Testing Kit (from £60)";
+    };
+
+    const isNoKitReasonSelected = () => {
+      return reasonSelect.value.trim() === "I don't have a kit yet";
+    };
+
+    const isDetailsStepReady = () => {
+      if (isTestMode) {
+        return true;
+      }
+      if (isNhsReasonSelected()) {
+        return detailsInput.value.trim() !== "";
+      }
+      if (isPrivateKitReasonSelected()) {
+        return labInput.value.trim() !== "";
+      }
+      if (isNoKitReasonSelected()) {
+        return hiddenInput.value.trim() !== "";
+      }
+      return false;
+    };
+
+    const syncStepTracker = () => {
+      const stepOrder = ["details", "appointment", "about", "summary"];
+      const activeIndex = stepOrder.indexOf(currentStep);
+      stepChips.forEach((chip, index) => {
+        const isActive = index === activeIndex;
+        const isComplete = activeIndex > index;
+        chip.classList.toggle("is-active", isActive);
+        chip.classList.toggle("is-complete", isComplete);
+      });
+    };
+
+    const refreshStepVisibility = () => {
+      const isDetailsStep = currentStep === "details";
+      const isAppointmentStep = currentStep === "appointment";
+      const isAboutStep = currentStep === "about";
+      const isSummaryStep = currentStep === "summary";
+
+      formTitle.hidden = !isDetailsStep;
+      formIntro.hidden = !isDetailsStep;
+      detailsRow.hidden = !isDetailsStep;
+      bloodTestField.hidden = !isDetailsStep;
+      detailsField.hidden = true;
+      privateDetailsField.hidden = true;
+      privateOptionsField.hidden = true;
+      supportRow.hidden = true;
+      kitRow.hidden = !isDetailsStep;
+      detailsNextWrap.hidden = !isDetailsStep;
+
+      appointmentLocationField.hidden = !isAppointmentStep;
+      clinicAvailabilityField.hidden = !isAppointmentStep;
+      mobileSlotsField.hidden = !isAppointmentStep;
+      priceBox.hidden = true;
+      formNextWrap.hidden = !isAppointmentStep;
+
+      aboutYouPage.hidden = !isAboutStep;
+      summaryPage.hidden = !isSummaryStep;
+      syncStepTracker();
+    };
+
+    const syncDetailsNextButtonState = () => {
+      goToAppointment.disabled = !isDetailsStepReady();
     };
 
     const closeClinicAvailabilityModal = () => {
       clinicModal.classList.remove("is-open");
       clinicSlotList.innerHTML = "";
+      clinicCards.forEach((card) => {
+        const inlinePanel = card.querySelector(".clinic-inline-availability");
+        if (!inlinePanel) return;
+        inlinePanel.hidden = true;
+        inlinePanel.innerHTML = "";
+      });
     };
 
     const formatClinicDateLabelFromDate = (date) => {
@@ -2216,13 +2822,28 @@
     };
 
     const syncPostBloodTestVisibility = () => {
-      const hasBloodTest = hiddenInput.value.trim() !== "";
-      const shouldShowPostFields = isTestMode || hasBloodTest;
-      detailsField.hidden = !shouldShowPostFields;
-      supportRow.hidden = !shouldShowPostFields;
-      labField.hidden = !shouldShowPostFields;
-      const hasLabSource = labInput.value.trim() !== "";
-      const shouldShowAppointmentLocation = isTestMode || (hasBloodTest && hasLabSource);
+      const isDetailsStep = currentStep === "details";
+      const hasReason = reasonSelect.value.trim() !== "";
+      const showNhsDetails = isDetailsStep && (isTestMode || isNhsReasonSelected());
+      const showNhsOptions = isDetailsStep && (isTestMode || isNhsReasonSelected());
+      const showPrivateKitField = isDetailsStep && (isTestMode || isPrivateKitReasonSelected());
+      const showPrivateDetails = isDetailsStep && (isTestMode || isPrivateKitReasonSelected());
+      const showPrivateOptions = isDetailsStep && (isTestMode || isPrivateKitReasonSelected());
+      detailsField.hidden = !showNhsDetails;
+      nhsOptionsField.hidden = !showNhsOptions;
+      privateDetailsField.hidden = !showPrivateDetails;
+      privateOptionsField.hidden = !showPrivateOptions;
+      supportRow.hidden = !(isDetailsStep && (isTestMode || hasReason));
+      kitRow.hidden = !showPrivateKitField;
+
+      if (!showPrivateOptions) {
+        resetPrivateOptionToggles();
+      }
+
+      const showDetailsNext = isDetailsStep && (isTestMode || isNhsReasonSelected() || isPrivateKitReasonSelected() || (isNoKitReasonSelected() && hiddenInput.value.trim() !== ""));
+      detailsNextWrap.hidden = !showDetailsNext;
+
+      const shouldShowAppointmentLocation = currentStep === "appointment" && isDetailsStepReady();
       appointmentLocationField.hidden = !shouldShowAppointmentLocation;
 
       if (!shouldShowAppointmentLocation) {
@@ -2234,31 +2855,19 @@
 
       syncClinicAvailabilityVisibility();
       syncMobileSlotsVisibility();
+      syncDetailsNextButtonState();
     };
 
     const setAboutYouPageVisibility = (isVisible) => {
       isAboutYouPageVisible = isVisible;
       isSummaryPageVisible = false;
-      aboutYouPage.hidden = !isVisible;
-      summaryPage.hidden = true;
+      currentStep = isVisible ? "about" : "appointment";
+      refreshStepVisibility();
 
-      formTitle.hidden = isVisible;
-      formIntro.hidden = isVisible;
-      detailsRow.hidden = isVisible;
-      bloodTestField.hidden = isVisible;
-      detailsField.hidden = isVisible;
-      supportRow.hidden = isVisible;
-      labField.hidden = isVisible;
-      appointmentLocationField.hidden = isVisible;
-      clinicAvailabilityField.hidden = isVisible;
-      mobileSlotsField.hidden = isVisible;
-      priceBox.hidden = isVisible;
-      formNextWrap.hidden = isVisible;
-
-      if (!isVisible) {
-        syncBloodTestVisibility();
-      } else {
+      if (isVisible) {
         updateAboutSelectionSummary();
+      } else {
+        syncPostBloodTestVisibility();
       }
 
       panelForm.scrollTop = 0;
@@ -2275,7 +2884,7 @@
 
     const syncPriceBoxVisibility = () => {
       let shouldShowPrice = false;
-      if (appointmentLocationInput.value === "mobile") {
+      if (currentStep === "appointment" && appointmentLocationInput.value === "mobile") {
         shouldShowPrice = selectedSlots.size > 0 && !mobileSlotsField.hidden;
       }
 
@@ -2284,28 +2893,16 @@
     };
 
     const syncFormNextVisibility = () => {
-      const shouldShowNextButton = !isAboutYouPageVisible && !isSummaryPageVisible && !priceBox.hidden;
-      formNextWrap.hidden = !shouldShowNextButton;
+      const isAppointmentStep = currentStep === "appointment" && !isAboutYouPageVisible && !isSummaryPageVisible;
+      formNextWrap.hidden = !isAppointmentStep;
+      goToAboutYou.hidden = isAppointmentStep ? priceBox.hidden : true;
     };
 
     const setSummaryPageVisibility = (isVisible) => {
       isSummaryPageVisible = isVisible;
       isAboutYouPageVisible = false;
-      summaryPage.hidden = !isVisible;
-      aboutYouPage.hidden = true;
-
-      formTitle.hidden = isVisible;
-      formIntro.hidden = isVisible;
-      detailsRow.hidden = isVisible;
-      bloodTestField.hidden = isVisible;
-      detailsField.hidden = isVisible;
-      supportRow.hidden = isVisible;
-      labField.hidden = isVisible;
-      appointmentLocationField.hidden = isVisible;
-      clinicAvailabilityField.hidden = isVisible;
-      mobileSlotsField.hidden = isVisible;
-      priceBox.hidden = isVisible;
-      formNextWrap.hidden = isVisible;
+      currentStep = isVisible ? "summary" : "about";
+      refreshStepVisibility();
 
       if (!isVisible) {
         setAboutYouPageVisibility(true);
@@ -2314,10 +2911,17 @@
       panelForm.scrollTop = 0;
     };
 
-    const resetCentrifuge = () => {
-      centrifugeInput.value = "no";
-      centrifugeButtons.forEach((btn) => {
-        btn.classList.toggle("is-active", btn.dataset.choice === "no");
+    const resetPrivateOptionToggles = () => {
+      yesNoToggleGroups.forEach((group) => {
+        const inputId = group.dataset.inputId || "";
+        const targetInput = inputId ? document.getElementById(inputId) : null;
+        if (targetInput) {
+          targetInput.value = "no";
+        }
+        const groupButtons = group.querySelectorAll(".centrifuge-btn");
+        groupButtons.forEach((btn) => {
+          btn.classList.toggle("is-active", btn.dataset.choice === "no");
+        });
       });
     };
 
@@ -2452,11 +3056,27 @@
       aboutSelectionLines.textContent = buildSummaryDateLines();
     };
 
+    const moveToAppointmentStepIfReady = () => {
+      if (currentStep !== "details") {
+        return;
+      }
+      if (!isDetailsStepReady()) {
+        return;
+      }
+      currentStep = "appointment";
+      refreshStepVisibility();
+      syncPostBloodTestVisibility();
+      panelForm.scrollTop = 0;
+    };
+
     const updateSummaryContent = () => {
       const locationLabel = appointmentLocationInput.value === "clinic" ? "clinic" : "mobile";
       summaryIntro.textContent = `You have requested for a phlebotomist to ${locationLabel === "clinic" ? "book you into a clinic appointment" : "come to your address"} to collect your blood for a blood test.`;
 
-      const bloodTestLabel = hiddenInput.value || "Other private blood test";
+      const selectedBloodTests = getSelectedBloodTestValues();
+      const bloodTestLabel = selectedBloodTests.length > 0
+        ? selectedBloodTests.join(", ")
+        : (hiddenInput.value || reasonSelect.value || "Other private blood test");
       const centrifugeLabel = centrifugeInput.value === "yes" ? "Centrifuge required" : "No centrifuge required";
       summaryTestLines.textContent = `${bloodTestLabel}\n${centrifugeLabel}`;
 
@@ -2482,7 +3102,7 @@
     };
 
     const syncMobileSlotsVisibility = () => {
-      const shouldShow = appointmentLocationInput.value === "mobile" && !appointmentLocationField.hidden;
+      const shouldShow = currentStep === "appointment" && appointmentLocationInput.value === "mobile" && !appointmentLocationField.hidden;
       mobileSlotsField.hidden = !shouldShow;
       if (!shouldShow) {
         syncPriceBoxVisibility();
@@ -2493,7 +3113,7 @@
     };
 
     const syncClinicAvailabilityVisibility = () => {
-      const shouldShow = appointmentLocationInput.value === "clinic" && !appointmentLocationField.hidden;
+      const shouldShow = currentStep === "appointment" && appointmentLocationInput.value === "clinic" && !appointmentLocationField.hidden;
       clinicAvailabilityField.hidden = !shouldShow;
       syncClinicModeView();
       if (shouldShow) {
@@ -2625,34 +3245,22 @@
       }
     };
 
-    trigger.addEventListener("click", () => {
-      const isOpen = customSelect.classList.toggle("open");
-      trigger.setAttribute("aria-expanded", String(isOpen));
-    });
+    wireBloodTestSelect(primaryBloodTestSelect);
+    addBloodTestBtn.addEventListener("click", addAnotherBloodTestSelect);
 
-    options.forEach((option) => {
-      option.addEventListener("click", (event) => {
-        if (event.target.closest(".info-btn") || event.target.closest(".mini-toggle-btn")) {
-          event.stopPropagation();
-          return;
-        }
+    yesNoToggleGroups.forEach((group) => {
+      const inputId = group.dataset.inputId || "";
+      const targetInput = inputId ? document.getElementById(inputId) : null;
+      const groupButtons = group.querySelectorAll(".centrifuge-btn");
 
-        const selectedValue = option.dataset.value || "";
-        hiddenInput.value = selectedValue;
-        trigger.textContent = selectedValue;
-
-        options.forEach((item) => item.setAttribute("aria-selected", "false"));
-        option.setAttribute("aria-selected", "true");
-        syncPostBloodTestVisibility();
-        closeMenu();
-      });
-    });
-
-    centrifugeButtons.forEach((toggleButton) => {
-      toggleButton.addEventListener("click", () => {
-        centrifugeButtons.forEach((btn) => btn.classList.remove("is-active"));
-        toggleButton.classList.add("is-active");
-        centrifugeInput.value = toggleButton.dataset.choice || "no";
+      groupButtons.forEach((toggleButton) => {
+        toggleButton.addEventListener("click", () => {
+          groupButtons.forEach((btn) => btn.classList.remove("is-active"));
+          toggleButton.classList.add("is-active");
+          if (targetInput) {
+            targetInput.value = toggleButton.dataset.choice || "no";
+          }
+        });
       });
     });
 
@@ -2694,50 +3302,120 @@
       });
     });
 
-    clinicCards.forEach((card) => {
-      const viewButton = card.querySelector(".clinic-view-btn");
-      if (!viewButton) return;
+    const openClinicAvailabilityForCard = (card) => {
+      const inlinePanel = card.querySelector(".clinic-inline-availability");
+      if (!inlinePanel) return;
+      const wasOpen = !inlinePanel.hidden;
+      closeClinicAvailabilityModal();
+      if (wasOpen) {
+        return;
+      }
 
-      viewButton.addEventListener("click", () => {
-        const clinicId = card.dataset.clinicId || "";
-        const clinicName = card.dataset.clinicName || "";
-        const clinicAddress = card.dataset.clinicAddress || "";
-        const slots = clinicSchedules[clinicId] || [];
-        const [firstSlot] = slots;
+      const clinicId = card.dataset.clinicId || "";
+      const slots = clinicSchedules[clinicId] || [];
+      const uniqueDates = Array.from(new Set(slots.map((slot) => slot.date)));
+      let selectedDate = uniqueDates[0] || "";
 
-        clinicModalName.textContent = clinicName;
-        clinicModalAddress.textContent = clinicAddress;
-        clinicModalDate.textContent = firstSlot ? firstSlot.date : "";
-        clinicSlotList.innerHTML = "";
+      const renderInlineSchedule = () => {
+        inlinePanel.innerHTML = "";
 
-        slots.forEach((slot) => {
-          const slotItem = document.createElement("div");
-          slotItem.className = "clinic-slot-item";
+        const scheduler = document.createElement("div");
+        scheduler.className = "clinic-inline-scheduler";
 
-          const slotTime = document.createElement("p");
-          slotTime.className = "clinic-slot-time";
-          const slotPrice = slot.price || "£35";
-          slotTime.innerHTML = `Next Slot <strong>${slot.date}, ${slot.time}</strong><span class="clinic-slot-price">${slotPrice}</span>`;
+        const calendarPanel = document.createElement("section");
+        calendarPanel.className = "clinic-inline-calendar-panel";
 
-          const bookButton = document.createElement("button");
-          bookButton.type = "button";
-          bookButton.className = "clinic-book-btn";
-          bookButton.textContent = "Book Appointment";
+        const calendarHeading = document.createElement("h5");
+        calendarHeading.className = "clinic-inline-heading";
+        calendarHeading.textContent = "Find an appointment";
 
-          bookButton.addEventListener("click", () => {
-            const selectedSlotLabel = `${slot.date}, ${slot.time}`;
-            applyClinicSelection(card, selectedSlotLabel);
-            closeClinicAvailabilityModal();
-            setAboutYouPageVisibility(true);
-          });
+        const calendarSubtitle = document.createElement("p");
+        calendarSubtitle.className = "clinic-inline-subtitle";
+        calendarSubtitle.textContent = "Choose a date to see available clinic slots near you.";
 
-          slotItem.appendChild(slotTime);
-          slotItem.appendChild(bookButton);
-          clinicSlotList.appendChild(slotItem);
+        const weekdays = document.createElement("div");
+        weekdays.className = "clinic-inline-weekdays";
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((day) => {
+          const label = document.createElement("span");
+          label.textContent = day;
+          weekdays.appendChild(label);
         });
 
-        clinicModal.classList.add("is-open");
-      });
+        const dateGrid = document.createElement("div");
+        dateGrid.className = "clinic-inline-date-grid";
+        uniqueDates.forEach((dateLabel) => {
+          const dateBtn = document.createElement("button");
+          dateBtn.type = "button";
+          dateBtn.className = "clinic-inline-date-btn";
+          if (dateLabel === selectedDate) {
+            dateBtn.classList.add("is-selected");
+          }
+          dateBtn.textContent = dateLabel;
+          dateBtn.addEventListener("click", () => {
+            selectedDate = dateLabel;
+            renderInlineSchedule();
+          });
+          dateGrid.appendChild(dateBtn);
+        });
+
+        calendarPanel.appendChild(calendarHeading);
+        calendarPanel.appendChild(calendarSubtitle);
+        calendarPanel.appendChild(weekdays);
+        calendarPanel.appendChild(dateGrid);
+
+        const timesPanel = document.createElement("section");
+        timesPanel.className = "clinic-inline-times-panel";
+
+        const timesHeading = document.createElement("h5");
+        timesHeading.className = "clinic-inline-heading";
+        timesHeading.textContent = "Available Times";
+
+        const timesList = document.createElement("div");
+        timesList.className = "clinic-inline-times-list";
+
+        slots
+          .filter((slot) => slot.date === selectedDate)
+          .forEach((slot) => {
+            const timeButton = document.createElement("button");
+            timeButton.type = "button";
+            timeButton.className = "clinic-inline-time-btn";
+            const slotPrice = slot.price || "£35";
+            timeButton.innerHTML = `<span>${slot.time}</span><span class="price">${slotPrice}</span>`;
+            timeButton.addEventListener("click", () => {
+              const selectedSlotLabel = `${slot.date}, ${slot.time}`;
+              applyClinicSelection(card, selectedSlotLabel);
+              closeClinicAvailabilityModal();
+              setAboutYouPageVisibility(true);
+            });
+            timesList.appendChild(timeButton);
+          });
+
+        timesPanel.appendChild(timesHeading);
+        timesPanel.appendChild(timesList);
+
+        scheduler.appendChild(calendarPanel);
+        scheduler.appendChild(timesPanel);
+        inlinePanel.appendChild(scheduler);
+      };
+
+      renderInlineSchedule();
+
+      inlinePanel.hidden = false;
+    };
+
+    clinicCards.forEach((card) => {
+      const viewButton = card.querySelector(".clinic-view-btn");
+      const calendarButton = card.querySelector(".clinic-calendar-btn");
+      if (viewButton) {
+        viewButton.addEventListener("click", () => {
+          openClinicAvailabilityForCard(card);
+        });
+      }
+      if (calendarButton) {
+        calendarButton.addEventListener("click", () => {
+          openClinicAvailabilityForCard(card);
+        });
+      }
     });
 
     closeClinicModal.addEventListener("click", closeClinicAvailabilityModal);
@@ -2752,8 +3430,19 @@
       setAboutYouPageVisibility(true);
     });
 
+    backToDetails.addEventListener("click", () => {
+      currentStep = "details";
+      refreshStepVisibility();
+      syncBloodTestVisibility();
+      panelForm.scrollTop = 0;
+    });
+
     backToForm.addEventListener("click", () => {
       setAboutYouPageVisibility(false);
+    });
+
+    goToAppointment.addEventListener("click", () => {
+      moveToAppointmentStepIfReady();
     });
 
     aboutContinueBtn.addEventListener("click", () => {
@@ -2816,6 +3505,10 @@
       renderLabSuggestions(labInput.value);
     });
 
+    labInput.addEventListener("change", () => {
+      syncDetailsNextButtonState();
+    });
+
     document.addEventListener("click", (event) => {
       if (!labTypeahead.contains(event.target)) {
         closeLabSuggestions();
@@ -2833,34 +3526,38 @@
     });
 
     document.addEventListener("click", (event) => {
-      if (!customSelect.contains(event.target)) {
-        closeMenu();
+      if (!event.target.closest("#blood-test-select-list .custom-select")) {
+        closeAllBloodTestMenus();
       }
     });
 
     const syncBloodTestVisibility = () => {
       const hasReason = reasonSelect.value.trim() !== "";
-      const shouldShowBloodTest = isTestMode || hasReason;
+      const shouldShowBloodTest = currentStep === "details" && (isTestMode || (hasReason && isNoKitReasonSelected()));
       bloodTestField.hidden = !shouldShowBloodTest;
 
       if (!shouldShowBloodTest) {
-        closeMenu();
-        hiddenInput.value = "";
-        trigger.textContent = "Click to choose";
-        options.forEach((item) => item.setAttribute("aria-selected", "false"));
-        resetCentrifuge();
+        closeAllBloodTestMenus();
+        removeAdditionalBloodTestSelects();
+        resetBloodTestSelect(primaryBloodTestSelect);
+        syncPrimaryBloodTestValue();
+        resetPrivateOptionToggles();
       }
 
       syncPostBloodTestVisibility();
     };
 
     reasonSelect.addEventListener("change", syncBloodTestVisibility);
+    detailsInput.addEventListener("input", syncDetailsNextButtonState);
+    detailsInput.addEventListener("change", syncDetailsNextButtonState);
     labInput.addEventListener("input", syncPostBloodTestVisibility);
     labInput.addEventListener("change", syncPostBloodTestVisibility);
     syncClinicModeView();
     renderClinicCalendar();
     renderClinicsForSelectedDate();
     renderMobileSlots();
+    refreshStepVisibility();
+    syncDetailsNextButtonState();
     syncBloodTestVisibility();
 
     testModeToggle.addEventListener("click", () => {
@@ -2874,13 +3571,13 @@
 
     resetFormToggle.addEventListener("click", () => {
       panelForm.reset();
-      closeMenu();
+      closeAllBloodTestMenus();
       closeModal();
       closeClinicAvailabilityModal();
-      hiddenInput.value = "";
-      trigger.textContent = "Click to choose";
-      options.forEach((item) => item.setAttribute("aria-selected", "false"));
-      resetCentrifuge();
+      removeAdditionalBloodTestSelects();
+      resetBloodTestSelect(primaryBloodTestSelect);
+      syncPrimaryBloodTestValue();
+      resetPrivateOptionToggles();
       appointmentLocationInput.value = "";
       locationButtons.forEach((button) => button.classList.remove("is-selected"));
       selectedClinicInput.value = "";
@@ -2897,9 +3594,11 @@
       isTestMode = false;
       isAboutYouPageVisible = false;
       isSummaryPageVisible = false;
+      currentStep = "details";
       testModeToggle.classList.remove("is-active");
       testModeToggle.title = "Toggle test mode (show all fields)";
-      setAboutYouPageVisibility(false);
+      refreshStepVisibility();
+      syncBloodTestVisibility();
       syncFormNextVisibility();
     });
 
